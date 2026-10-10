@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body style="margin:0">
+<title>OneLoco Game Shelf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a shelf of game cartridges, grouped by series, with a sticky search and filter bar. Single dark arcade look by choice. */
+:root {
+  --bg: #13111d;
+  --surface: #1d1a2b;
+  --surface-2: #272339;
+  --line: #36304f;
+  --fg: #eeeaf7;
+  --muted: #9a93b4;
+  --accent: #ffb547;
+  --accent-ink: #1a1306;
+  --warn: #ff7a6b;
+  --ok: #7ee0b0;
+  --display: "Bungee", "Impact", system-ui, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body { font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(30px, 6vw, 52px); line-height: 1; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+h1 span { color: var(--accent); }
+.sub { color: var(--muted); margin: 8px 0 0; max-width: 60ch; }
+.count { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.count b { color: var(--fg); font-weight: 600; }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 14px; margin-top: 20px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.search { flex: 1 1 240px; min-width: 0; position: relative; }
+.search input { width: 100%; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px 10px 38px; }
+.search input::placeholder { color: var(--muted); }
+.search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--muted); fill: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 600 13px var(--body); color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; cursor: pointer; }
+.chip:hover { color: var(--fg); border-color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+input:focus-visible, .chip:focus-visible, .play:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+section.group { margin-top: 34px; }
+.group h2 { font-family: var(--display); font-weight: 400; font-size: 18px; letter-spacing: .04em; margin: 0 0 14px; display: flex; align-items: baseline; gap: 10px; }
+.group h2 small { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+
+.cart { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; min-width: 0; transition: transform .15s ease, border-color .15s ease; }
+.cart:hover { transform: translateY(-2px); border-color: var(--muted); }
+.label { position: relative; height: 92px; padding: 12px 14px; display: flex; align-items: end; justify-content: space-between; background: var(--hue); }
+.label::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 2px, transparent 2px 4px); pointer-events: none; }
+.tag { position: relative; font-family: var(--display); font-size: 30px; line-height: 1; color: rgba(10,8,18,.82); }
+.series { position: relative; font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: rgba(10,8,18,.75); }
+.body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.name { font-weight: 700; font-size: 16px; line-height: 1.25; margin: 0; }
+.host { font: 12px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
+.status { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.status.ok { color: var(--ok); }
+.status.guess { color: var(--accent); }
+.status.missing { color: var(--warn); }
+.play { display: inline-flex; align-items: center; gap: 6px; font: 700 14px var(--body); text-decoration: none; color: var(--accent-ink); background: var(--accent); border-radius: 8px; padding: 8px 14px; }
+.play:hover { filter: brightness(1.08); }
+.play svg { width: 12px; height: 12px; fill: currentColor; }
+.cart.off { opacity: .55; }
+.cart.off:hover { transform: none; border-color: var(--line); }
+.cart.off .play { background: var(--surface-2); color: var(--muted); pointer-events: none; }
+.last { font: 11px var(--mono); color: var(--muted); }
+
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+footer { margin-top: 48px; color: var(--muted); font-size: 13px; max-width: 70ch; }
+@media (prefers-reduced-motion: reduce) { .cart { transition: none; } .cart:hover { transform: none; } }
+@media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Game <span>Shelf</span></h1>
+      <p class="sub">Browser games, all in one place. Click Play and the game opens in a new tab.</p>
+    </div>
+    <div class="count" id="count"></div>
+  </header>
+
+  <div class="bar">
+    <label class="search" for="q">
+      <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" placeholder="Search games" autocomplete="off">
+    </label>
+    <div class="chips" id="chips" role="group" aria-label="Filter games"></div>
+  </div>
+
+  <main id="shelf"></main>
+
+  <footer>
+    These links came from a screenshot of a social media post. They are run by other people, not OneLoco, so they can stop working at any time.
+    "Best guess" means the end of the link was cut off and was filled in. "Link needed" means the link was hidden in the screenshot.
+  </footer>
+</div>
+
+<script>
+const GROUPS = [
+  { id: "cod", name: "Call of Duty", hue: "#ffb547" },
+  { id: "fps", name: "Classic Shooters", hue: "#8fb8ff" },
+  { id: "sport", name: "Skate & Sports", hue: "#7ee0b0" },
+  { id: "open", name: "Open World & More", hue: "#ff8fb1" }
+];
+
+// status: ok = full link visible, guess = end of link filled in, missing = link hidden
+const GAMES = [
+  { name: "BO1 Zombies", tag: "BO1", group: "cod", url: "https://vel.gg/bo1z", status: "ok" },
+  { name: "Moon", tag: "MN", group: "cod", url: "https://moon-zombies.pages.dev", status: "ok" },
+  { name: "Kino der Toten", tag: "KDT", group: "cod", url: "https://kino-der-toten.pages.dev", status: "ok" },
+  { name: "BO3 Cheese Cube", tag: "BO3", group: "cod", url: "https://cheese-cube.pages.dev", status: "ok" },
+  { name: "Black Ops 2", tag: "BO2", group: "cod", url: "https://vibeslops.luckeysystems.com", status: "ok" },
+  { name: "Modern Warfare 2", tag: "MW2", group: "cod", url: "https://ovz-game-production.up.railway.app", status: "ok" },
+
+  { name: "CS Surf", tag: "CS", group: "fps", url: "https://surfd.net", status: "ok" },
+  { name: "Halo CE", tag: "HCE", group: "fps", url: "https://mitchellhynes.com/halo", status: "ok" },
+  { name: "Halo CE Mobile", tag: "HCM", group: "fps", url: "https://hcemobile.com", status: "ok" },
+  { name: "Quake 1", tag: "Q1", group: "fps", url: "https://q1.pieter.com", status: "ok" },
+  { name: "Quake 2", tag: "Q2", group: "fps", url: "https://q2.pieter.com", status: "guess" },
+  { name: "Quake 3", tag: "Q3", group: "fps", url: "https://q3.pieter.com", status: "guess" },
+  { name: "Return to Castle Wolfenstein", tag: "RTCW", group: "fps", url: "", status: "missing" },
+  { name: "Unreal Tournament", tag: "UT", group: "fps", url: "", status: "missing" },
+  { name: "Half-Life", tag: "HL", group: "fps", url: "", status: "missing" },
+  { name: "Half-Life / CS", tag: "HL/CS", group: "fps", url: "", status: "missing" },
+
+  { name: "Skate 3", tag: "SK3", group: "sport", url: "https://skate.aaddpp.lol", status: "ok" },
+  { name: "Skate Rust", tag: "SKR", group: "sport", url: "https://global-terror.net", status: "ok" },
+  { name: "PES 6", tag: "PES", group: "sport", url: "https://pes6.optijuegos.net", status: "guess" },
+
+  { name: "GTA 5", tag: "GTA5", group: "open", url: "", status: "missing", hint: "web.archive.org snapshot" },
+  { name: "GTA Vice City", tag: "GTAVC", group: "open", url: "", status: "missing", hint: "joncodeofficial…" },
+  { name: "The Simpsons: Hit & Run", tag: "SHR", group: "open", url: "", status: "missing", hint: "…wasm.cjoseph.workers.dev" },
+  { name: "Diablo", tag: "D1", group: "open", url: "", status: "missing" }
+];
+
+const STATUS_TEXT = { ok: "Ready", guess: "Best guess", missing: "Link needed" };
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+let played = store.get("shelf.played", {});
+let filter = store.get("shelf.filter", "all");
+const q = document.getElementById("q");
+
+function host(u) { try { return new URL(u).host + new URL(u).pathname.replace(/\/$/, ""); } catch { return ""; } }
+function ago(t) {
+  const m = Math.round((Date.now() - t) / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return m + " min ago";
+  const h = Math.round(m / 60);
+  if (h < 24) return h + " hr ago";
+  return Math.round(h / 24) + " days ago";
+}
+function esc(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+function renderChips() {
+  const chips = [{ id: "all", name: "All" }, { id: "ready", name: "Ready to play" }, ...GROUPS];
+  if (Object.keys(played).length) chips.splice(2, 0, { id: "recent", name: "Recently played" });
+  document.getElementById("chips").innerHTML = chips.map(c =>
+    `<button class="chip" type="button" data-f="${c.id}" aria-pressed="${filter === c.id}">${c.name}</button>`).join("");
+}
+
+function card(g, hue) {
+  const off = g.status === "missing";
+  const sub = off ? (g.hint ? "Partial: " + g.hint : "Hidden in screenshot") : host(g.url);
+  const last = played[g.name] ? `<span class="last">Played ${ago(played[g.name])}</span>` : "";
+  return `<article class="cart${off ? " off" : ""}">
+    <div class="label" style="--hue:${hue}"><span class="tag">${esc(g.tag)}</span><span class="series">${esc(GROUPS.find(x => x.id === g.group).name)}</span></div>
+    <div class="body">
+      <h3 class="name">${esc(g.name)}</h3>
+      <div class="host">${esc(sub)}</div>
+      ${last}
+      <div class="row">
+        <span class="status ${g.status}">${STATUS_TEXT[g.status]}</span>
+        ${off ? `<span class="play" aria-disabled="true">Play</span>`
+              : `<a class="play" href="${esc(g.url)}" target="_blank" rel="noopener noreferrer" data-name="${esc(g.name)}"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg>Play</a>`}
+      </div>
+    </div>
+  </article>`;
+}
+
+function render() {
+  const term = q.value.trim().toLowerCase();
+  let list = GAMES.filter(g => !term || g.name.toLowerCase().includes(term) || g.tag.toLowerCase().includes(term));
+  if (filter === "ready") list = list.filter(g => g.status !== "missing");
+  const shelf = document.getElementById("shelf");
+  let html = "";
+  if (filter === "recent") {
+    const rec = list.filter(g => played[g.name]).sort((a, b) => played[b.name] - played[a.name]);
+    if (rec.length) html = `<section class="group"><h2>Recently played <small>${rec.length}</small></h2><div class="grid">${rec.map(g => card(g, GROUPS.find(x => x.id === g.group).hue)).join("")}</div></section>`;
+  } else {
+    for (const grp of GROUPS) {
+      if (!["all", "ready", grp.id].includes(filter)) continue;
+      const items = list.filter(g => g.group === grp.id);
+      if (!items.length) continue;
+      html += `<section class="group"><h2>${grp.name} <small>${items.length}</small></h2><div class="grid">${items.map(g => card(g, grp.hue)).join("")}</div></section>`;
+    }
+  }
+  shelf.innerHTML = html || `<p class="empty">No games match "${esc(q.value)}".</p>`;
+  const ready = GAMES.filter(g => g.status !== "missing").length;
+  document.getElementById("count").innerHTML = `<b>${ready}</b> playable · ${GAMES.length} total`;
+}
+
+document.getElementById("chips").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  filter = b.dataset.f; store.set("shelf.filter", filter); renderChips(); render();
+});
+document.getElementById("shelf").addEventListener("click", e => {
+  const a = e.target.closest("a.play"); if (!a) return;
+  played[a.dataset.name] = Date.now(); store.set("shelf.played", played);
+  setTimeout(() => { renderChips(); render(); }, 50);
+});
+q.addEventListener("input", render);
+if (!["all","ready","recent",...GROUPS.map(g=>g.id)].includes(filter) || (filter === "recent" && !Object.keys(played).length)) filter = "all";
+renderChips(); render();
+</script>
+
+</body>
+</html>
