@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Missed Revenue Calculator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column on phones; on wide screens inputs sit left and a sticky result panel sits right. Below that, the math, a checklist, signup and booking. */
+:root {
+  --bg: #f3f5f4;
+  --surface: #ffffff;
+  --line: #d6dddb;
+  --fg: #16201e;
+  --muted: #5b6966;
+  --brand: #0f5c55;
+  --brand-ink: #ffffff;
+  --leak: #c2410c;
+  --leak-soft: #fdeee6;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1615; --surface: #172120; --line: #2a3735; --fg: #e8efed; --muted: #9aaaa6;
+  --brand: #4fb3a8; --brand-ink: #06201d; --leak: #fb8a4c; --leak-soft: #2a1a12; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1615; --surface: #172120; --line: #2a3735; --fg: #e8efed; --muted: #9aaaa6;
+  --brand: #4fb3a8; --brand-ink: #06201d; --leak: #fb8a4c; --leak-soft: #2a1a12; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; gap: 28px; }
+
+header h1 { font-family: var(--display); font-weight: 800; font-size: clamp(28px, 5.5vw, 44px); line-height: 1.08; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+header p { color: var(--muted); margin: 10px 0 0; max-width: 60ch; }
+.eyebrow { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--brand); margin-bottom: 8px; }
+
+.calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 760px) { .calc { grid-template-columns: 1fr; } }
+
+.inputs { display: grid; gap: 18px; }
+.field { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; }
+.field label { font-weight: 600; font-size: 15px; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.field .help { color: var(--muted); font-size: 13px; margin: 0; }
+.entry { display: flex; align-items: center; gap: 12px; }
+.entry input[type="range"] { flex: 1; min-width: 0; accent-color: var(--brand); }
+.num { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 0 10px; width: 120px; flex: none; }
+.num span { color: var(--muted); font-family: var(--mono); font-size: 14px; }
+.num input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--fg); font: 500 16px var(--mono); padding: 9px 4px; font-variant-numeric: tabular-nums; text-align: right; }
+.num input:focus { outline: none; }
+.num:focus-within { outline: 2px solid var(--brand); outline-offset: 1px; }
+
+.result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--leak-soft); border: 1px solid var(--leak); border-radius: 14px; padding: 22px; display: grid; gap: 16px; }
+.result .tag { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--leak); }
+.big { font-family: var(--display); font-weight: 800; font-size: clamp(38px, 8vw, 58px); line-height: 1; color: var(--leak); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.big small { font-size: .38em; font-weight: 700; color: var(--fg); }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stat { display: grid; gap: 2px; }
+.stat b { font: 500 20px var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.stat span { font-size: 12px; color: var(--muted); }
+.disclaimer { font-size: 13px; color: var(--muted); margin: 0; }
+.ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 700 15px var(--body); border-radius: 10px; padding: 12px 18px; cursor: pointer; text-decoration: none; border: 1px solid var(--brand); }
+.btn.primary { background: var(--brand); color: var(--brand-ink); }
+.btn.ghost { background: transparent; color: var(--brand); }
+.btn:hover { filter: brightness(1.06); }
+.btn:focus-visible, input:focus-visible, .check input:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 14px; min-width: 0; }
+section h2 { font-family: var(--display); font-weight: 700; font-size: 22px; margin: 0; text-wrap: balance; }
+section > p { margin: 0; color: var(--muted); max-width: 65ch; }
+
+.math { overflow-x: auto; }
+.math table { border-collapse: collapse; width: 100%; min-width: 460px; font-variant-numeric: tabular-nums; }
+.math td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.math td:first-child { color: var(--muted); font-size: 14px; width: 40%; }
+.math td.f { font: 13px var(--mono); color: var(--muted); }
+.math td.v { font: 500 15px var(--mono); text-align: right; white-space: nowrap; }
+.math tr.total td { border-bottom: 0; font-weight: 700; color: var(--fg); }
+.math tr.total td.v { color: var(--leak); }
+ul.assume { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); font-size: 14px; max-width: 70ch; }
+
+.lower { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 760px) { .lower { grid-template-columns: 1fr; } }
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.check { display: flex; gap: 12px; align-items: flex-start; padding: 10px 4px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.check:last-child { border-bottom: 0; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--brand); flex: none; }
+.check b { display: block; font-weight: 600; }
+.check span { color: var(--muted); font-size: 14px; }
+.check input:checked + div b { text-decoration: line-through; color: var(--muted); }
+.progress { font: 500 13px var(--mono); color: var(--brand); }
+
+form.signup { display: grid; gap: 10px; }
+form.signup label { font-weight: 600; font-size: 14px; }
+form.signup input[type="text"], form.signup input[type="email"] { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; width: 100%; }
+.msg { font-size: 14px; margin: 0; min-height: 1.4em; }
+.msg.ok { color: var(--brand); }
+.msg.err { color: var(--leak); }
+.fine { font-size: 12px; color: var(--muted); margin: 0; }
+.book { border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 10px; }
+.book p { margin: 0; color: var(--muted); font-size: 14px; }
+footer { color: var(--muted); font-size: 12px; max-width: 75ch; }
+@media (prefers-reduced-motion: no-preference) { .big { transition: color .2s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">For service businesses</div>
+    <h1>What are missed leads costing you?</h1>
+    <p>Enter four numbers from a typical month. The calculator estimates how much revenue slips away when inquiries never get a follow-up.</p>
+  </header>
+
+  <div class="calc">
+    <div class="inputs">
+      <div class="field">
+        <label for="inq">Monthly inquiries <output id="inq-o" hidden></output></label>
+        <p class="help">Calls, forms, texts and DMs from potential customers.</p>
+        <div class="entry"><input type="range" id="inq-r" min="0" max="1000" step="5" aria-label="Monthly inquiries slider"><div class="num"><input id="inq" type="number" inputmode="numeric" min="0" step="1"></div></div>
+      </div>
+      <div class="field">
+        <label for="miss">Inquiries that never get follow-up</label>
+        <p class="help">Missed calls, unanswered forms, people nobody called back.</p>
+        <div class="entry"><input type="range" id="miss-r" min="0" max="100" step="1" aria-label="No follow-up percent slider"><div class="num"><input id="miss" type="number" inputmode="decimal" min="0" max="100" step="1"><span>%</span></div></div>
+      </div>
+      <div class="field">
+        <label for="close">Estimated close rate</label>
+        <p class="help">Out of leads you do follow up with, the share that buy.</p>
+        <div class="entry"><input type="range" id="close-r" min="0" max="100" step="1" aria-label="Close rate slider"><div class="num"><input id="close" type="number" inputmode="decimal" min="0" max="100" step="1"><span>%</span></div></div>
+      </div>
+      <div class="field">
+        <label for="sale">Average sale value</label>
+        <p class="help">Typical revenue from one new customer's first job or purchase.</p>
+        <div class="entry"><input type="range" id="sale-r" min="0" max="20000" step="50" aria-label="Average sale slider"><div class="num"><span>$</span><input id="sale" type="number" inputmode="decimal" min="0" step="1"></div></div>
+      </div>
+      <p class="fine" id="example-note">Filled in with example numbers. Replace them with your own.</p>
+    </div>
+
+    <aside class="result" aria-live="polite">
+      <div class="tag">Estimated revenue lost</div>
+      <div class="big" id="monthly">$0 <small>/ month</small></div>
+      <div class="stats">
+        <div class="stat"><b id="annual">$0</b><span>Per year (est.)</span></div>
+        <div class="stat"><b id="lostLeads">0</b><span>Leads with no follow-up</span></div>
+        <div class="stat"><b id="lostDeals">0</b><span>Sales missed</span></div>
+      </div>
+      <p class="disclaimer">These are estimates based on your inputs, not a guarantee. Real results vary by market, offer and how fast leads are contacted.</p>
+      <div class="ctas">
+        <a class="btn primary" id="book-top" href="#book">Book a consultation</a>
+        <a class="btn ghost" href="#checklist">See the checklist</a>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card">
+    <h2>How this estimate is calculated</h2>
+    <div class="math">
+      <table>
+        <tbody>
+          <tr><td>Leads with no follow-up</td><td class="f" id="f1"></td><td class="v" id="v1"></td></tr>
+          <tr><td>Sales those leads could have become</td><td class="f" id="f2"></td><td class="v" id="v2"></td></tr>
+          <tr class="total"><td>Estimated monthly revenue lost</td><td class="f" id="f3"></td><td class="v" id="v3"></td></tr>
+          <tr><td>Estimated yearly revenue lost</td><td class="f">monthly × 12</td><td class="v" id="v4"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="assume">
+      <li>Assumes leads with no follow-up would close at the same rate as the leads you do work. Some of them may be lower quality, so the real number could be lower.</li>
+      <li>Counts only the first sale. Repeat business, referrals and reviews are left out, so lifetime value could be higher.</li>
+      <li>Treats every month the same. Seasonal businesses should use an average month.</li>
+      <li>Results are rounded and are estimates only.</li>
+    </ul>
+  </section>
+
+  <div class="lower">
+    <section class="card" id="checklist">
+      <h2>Follow-up checklist</h2>
+      <p>Simple habits that keep inquiries from going cold. <span class="progress" id="progress"></span></p>
+      <ul class="checklist" id="list"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Get the follow-up playbook</h2>
+      <p>Templates for the first text, first email and a 7-day follow-up sequence.</p>
+      <form class="signup" id="signup" novalidate>
+        <label for="su-name">First name</label>
+        <input type="text" id="su-name" autocomplete="given-name" maxlength="80">
+        <label for="su-email">Email</label>
+        <input type="email" id="su-email" autocomplete="email" required maxlength="200">
+        <button class="btn primary" type="submit">Send me the playbook</button>
+        <p class="msg" id="su-msg" role="status"></p>
+        <p class="fine">We only use your email to send the playbook and follow-up tips. Unsubscribe anytime.</p>
+      </form>
+      <div class="book" id="book">
+        <h2>Talk it through</h2>
+        <p>A short call to look at where your leads are slipping and what to fix first.</p>
+        <a class="btn primary" id="book-btn" href="#book" target="_blank" rel="noopener noreferrer">Book a consultation</a>
+        <p class="fine" id="book-note" hidden>Online booking is being set up. Leave your email above and we'll reach out to schedule.</p>
+      </div>
+    </section>
+  </div>
+
+  <footer>This calculator gives estimates for planning purposes only. It is not financial advice and does not promise any result.</footer>
+</div>
+
+<script>
+// Paste your calendar or booking page link here. Leave empty to show a fallback note.
+const BOOKING_URL = "";
+
+const EXAMPLE = { inq: 120, miss: 30, close: 25, sale: 1500 };
+const fields = ["inq", "miss", "close", "sale"];
+const money = n => "$" + Math.round(n).toLocaleString("en-US");
+const num1 = n => (Math.round(n * 10) / 10).toLocaleString("en-US");
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const saved = store.get("mrc.inputs", null);
+const vals = Object.assign({}, EXAMPLE, saved || {});
+if (saved) document.getElementById("example-note").hidden = true;
+
+function clamp(id, v) {
+  v = Number.isFinite(v) ? Math.max(0, v) : 0;
+  if (id === "miss" || id === "close") v = Math.min(100, v);
+  return v;
+}
+function calc() {
+  const lostLeads = vals.inq * vals.miss / 100;
+  const lostDeals = lostLeads * vals.close / 100;
+  const monthly = lostDeals * vals.sale;
+  return { lostLeads, lostDeals, monthly, annual: monthly * 12 };
+}
+function render() {
+  const r = calc();
+  document.getElementById("monthly").innerHTML = money(r.monthly) + " <small>/ month</small>";
+  document.getElementById("annual").textContent = money(r.annual);
+  document.getElementById("lostLeads").textContent = num1(r.lostLeads);
+  document.getElementById("lostDeals").textContent = num1(r.lostDeals);
+  document.getElementById("f1").textContent = `${vals.inq} inquiries × ${vals.miss}%`;
+  document.getElementById("v1").textContent = num1(r.lostLeads);
+  document.getElementById("f2").textContent = `${num1(r.lostLeads)} × ${vals.close}% close rate`;
+  document.getElementById("v2").textContent = num1(r.lostDeals);
+  document.getElementById("f3").textContent = `${num1(r.lostDeals)} × ${money(vals.sale)}`;
+  document.getElementById("v3").textContent = money(r.monthly);
+  document.getElementById("v4").textContent = money(r.annual);
+}
+for (const id of fields) {
+  const box = document.getElementById(id), slider = document.getElementById(id + "-r");
+  box.value = vals[id]; slider.value = vals[id];
+  const update = (v, from) => {
+    vals[id] = clamp(id, parseFloat(v));
+    if (from !== box) box.value = vals[id];
+    if (from !== slider) slider.value = vals[id];
+    store.set("mrc.inputs", vals); render();
+  };
+  box.addEventListener("input", () => update(box.value, box));
+  box.addEventListener("blur", () => { box.value = vals[id]; });
+  slider.addEventListener("input", () => update(slider.value, slider));
+}
+render();
+
+// Checklist
+const ITEMS = [
+  ["Reply within 5 minutes", "The first business to respond usually wins the job. Set up an instant text for new inquiries."],
+  ["Return every missed call the same day", "Turn on missed-call text-back so callers hear from you right away."],
+  ["Use one place for every lead", "Calls, forms, texts and DMs all land in one CRM so nothing gets lost."],
+  ["Follow up at least 5 times", "Try text, call and email over 7 to 10 days before marking a lead cold."],
+  ["Give every lead an owner", "Each inquiry is assigned to a person with a due date for the next step."],
+  ["Send a reminder before each appointment", "A text the day before and an hour before cuts no-shows."],
+  ["Follow up on every quote", "Check in 2, 5 and 10 days after sending a quote or estimate."],
+  ["Re-contact old leads every quarter", "A short check-in can revive people who weren't ready before."],
+  ["Track where each sale came from", "Know which ads and sources turn into paying customers."]
+];
+const done = store.get("mrc.checks", {});
+const list = document.getElementById("list");
+list.innerHTML = ITEMS.map(([t, d], i) => `<li><label class="check" for="c${i}"><input type="checkbox" id="c${i}" ${done[i] ? "checked" : ""}><div><b>${t}</b><span>${d}</span></div></label></li>`).join("");
+function progress() { const n = ITEMS.filter((_, i) => done[i]).length; document.getElementById("progress").textContent = `${n} of ${ITEMS.length} in place`; }
+list.addEventListener("change", e => { const i = e.target.id.slice(1); done[i] = e.target.checked; store.set("mrc.checks", done); progress(); });
+progress();
+
+// Booking
+const bookBtn = document.getElementById("book-btn");
+if (BOOKING_URL) { bookBtn.href = BOOKING_URL; document.getElementById("book-top").href = BOOKING_URL; document.getElementById("book-top").target = "_blank"; }
+else {
+  bookBtn.removeAttribute("target");
+  bookBtn.addEventListener("click", e => { e.preventDefault(); document.getElementById("book-note").hidden = false; document.getElementById("su-email").focus(); });
+}
+
+// Email signup, saved to the artifact's database
+let dbP = window.claude?.use ? window.claude.use("db") : Promise.resolve(null);
+const form = document.getElementById("signup"), msg = document.getElementById("su-msg");
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = document.getElementById("su-email").value.trim();
+  const name = document.getElementById("su-name").value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.className = "msg err"; msg.textContent = "Enter a valid email address, like name@business.com."; return; }
+  msg.className = "msg"; msg.textContent = "Saving…";
+  const db = await dbP;
+  if (!db) { msg.className = "msg err"; msg.textContent = "Signup isn't available in this view. Use the booking button to reach us."; return; }
+  try {
+    const r = calc();
+    await db.collection("signups").doc().set({
+      name, email, createdAt: new Date().toISOString(),
+      inputs: { ...vals }, estimatedMonthlyLoss: Math.round(r.monthly)
+    });
+    form.reset(); msg.className = "msg ok"; msg.textContent = "You're on the list. Check your inbox for the playbook.";
+  } catch (err) {
+    msg.className = "msg err"; msg.textContent = "Your signup couldn't be saved. Try again, or use the booking button to reach us.";
+  }
+});
+</script>
+
+</body>
+</html>
