@@ -1,0 +1,518 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><style>body{margin:0}[hidden]{display:none!important}</style></head><body>
+<title>Quote Leak Audit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: data source picker on top, then what the data shows (findings + speed-to-lead bars), then the calculator prefilled from the data. Highway-sign type, DOT amber on asphalt blue. */
+:root {
+  --bg: #eef1f5; --surface: #ffffff; --line: #d3d9e2; --fg: #111a27; --muted: #566274;
+  --brand: #1b3a63; --brand-ink: #ffffff; --amber: #f2a900; --amber-ink: #1c1400; --leak: #b42318; --good: #17804a;
+  --panel: #13233b; --panel-fg: #f3f6fa; --panel-muted: #a9b6c8;
+  --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
+  --brand: #7fa7dc; --brand-ink: #0b1626; --leak: #ff7b6e; --good: #5fd39a; --panel: #1a2a43; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
+  --brand: #7fa7dc; --brand-ink: #0b1626; --leak: #ff7b6e; --good: #5fd39a; --panel: #1a2a43; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; gap: 24px; }
+.eyebrow { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--brand); margin-bottom: 10px; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 7vw, 54px); line-height: 1; margin: 0; text-transform: uppercase; text-wrap: balance; }
+h1 em { font-style: normal; background: var(--amber); color: var(--amber-ink); padding: 0 .15em; }
+header p { color: var(--muted); margin: 12px 0 0; max-width: 64ch; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 26px; margin: 0; text-transform: uppercase; text-wrap: balance; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
+.muted { color: var(--muted); }
+.fine { font-size: 12px; color: var(--muted); margin: 0; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tab { font: 700 15px var(--body); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+.pane { display: grid; gap: 12px; }
+.pane p { margin: 0; max-width: 70ch; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.row > div { display: grid; gap: 4px; min-width: 0; flex: 1 1 200px; }
+label.l { font-weight: 600; font-size: 14px; }
+input[type="text"], input[type="password"], select { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100%; min-width: 0; }
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px; text-align: center; color: var(--muted); cursor: pointer; }
+.drop.over { border-color: var(--brand); color: var(--fg); }
+.drop b { color: var(--fg); }
+pre.fmt { margin: 0; overflow-x: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font: 12px/1.6 var(--mono); }
+.map { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; font: 700 15px var(--body); border-radius: 8px; padding: 11px 18px; cursor: pointer; text-decoration: none; border: 2px solid transparent; }
+.btn.primary { background: var(--brand); color: var(--brand-ink); }
+.btn.amber { background: var(--amber); color: var(--amber-ink); }
+.btn.outline { background: transparent; color: var(--panel-fg); border-color: rgba(255,255,255,.35); }
+.btn.small { padding: 7px 12px; font-size: 13px; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn:focus-visible, .tab:focus-visible, input:focus-visible, select:focus-visible, .drop:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.msg { margin: 0; font-size: 14px; min-height: 1.4em; }
+.msg.err { color: var(--leak); }
+.msg.ok { color: var(--good); }
+
+.source { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 14px; }
+.pill { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; padding: 4px 9px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.demo { color: var(--amber); background: var(--amber); color: var(--amber-ink); border-color: var(--amber); }
+.pill.real { color: var(--good); }
+.agency { font-family: var(--display); font-size: 24px; font-weight: 700; text-transform: uppercase; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.tile { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 2px; min-width: 0; border-left: 4px solid var(--line); }
+.tile.bad { border-left-color: var(--leak); }
+.tile.ok { border-left-color: var(--good); }
+.tile b { font: 500 24px var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tile span { font-size: 13px; color: var(--muted); }
+.bars { display: grid; gap: 8px; }
+.bar { display: grid; grid-template-columns: 120px minmax(0, 1fr) 90px; gap: 10px; align-items: center; font-size: 14px; }
+.bar .track { height: 18px; background: var(--bg); border-radius: 4px; overflow: hidden; border: 1px solid var(--line); }
+.bar .fill { height: 100%; background: var(--brand); }
+.bar.never .fill { background: var(--leak); }
+.bar.slow .fill { background: var(--amber); }
+.bar .n { font: 13px var(--mono); text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+@media (max-width: 480px) { .bar { grid-template-columns: 88px minmax(0, 1fr) 70px; font-size: 13px; } }
+
+.calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 800px) { .calc { grid-template-columns: 1fr; } }
+.inputs { display: grid; gap: 12px; }
+.field { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; }
+.field .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.field label { font-weight: 700; font-size: 15px; }
+.field .help { color: var(--muted); font-size: 13px; margin: 0; }
+.badge { font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; padding: 2px 7px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.badge.data { color: var(--good); }
+.badge.est { color: var(--muted); }
+.badge.edit { color: var(--amber); }
+.entry { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.entry input[type="range"] { flex: 1; min-width: 0; accent-color: var(--brand); }
+.num { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 0 10px; width: 130px; flex: none; }
+.num span { color: var(--muted); font-family: var(--mono); font-size: 14px; }
+.num input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--fg); font: 500 16px var(--mono); padding: 8px 4px; font-variant-numeric: tabular-nums; text-align: right; }
+.num input:focus { outline: none; }
+.num:focus-within { outline: 2px solid var(--brand); outline-offset: 1px; }
+.subhead { font-family: var(--display); font-weight: 700; font-size: 19px; text-transform: uppercase; margin: 8px 0 0; }
+
+.result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--panel); color: var(--panel-fg); border-radius: 14px; padding: 22px; display: grid; gap: 14px; border-top: 6px solid var(--amber); }
+.result .tag { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--amber); }
+.big { font-family: var(--display); font-weight: 800; font-size: clamp(44px, 9vw, 66px); line-height: .95; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.big small { font-size: .36em; font-weight: 600; color: var(--panel-muted); text-transform: uppercase; }
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; border-top: 1px solid rgba(255,255,255,.14); padding-top: 12px; }
+.stat { display: grid; gap: 2px; min-width: 0; }
+.stat b { font: 500 19px var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.stat span { font-size: 12px; color: var(--panel-muted); }
+.result p { margin: 0; font-size: 13px; color: var(--panel-muted); }
+.ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.math { overflow-x: auto; }
+.math table { border-collapse: collapse; width: 100%; min-width: 480px; font-variant-numeric: tabular-nums; }
+.math td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.math td:first-child { color: var(--muted); font-size: 14px; width: 38%; }
+.math td.f { font: 13px var(--mono); color: var(--muted); }
+.math td.v { font: 500 15px var(--mono); text-align: right; white-space: nowrap; }
+.math tr.total td { font-weight: 700; color: var(--fg); }
+.math tr.total td.v { color: var(--leak); }
+ul.assume { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); font-size: 14px; max-width: 74ch; }
+footer { color: var(--muted); font-size: 12px; max-width: 80ch; display: grid; gap: 6px; }
+footer b { font-family: var(--display); font-size: 15px; text-transform: uppercase; color: var(--fg); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">For trucking insurance agencies</div>
+    <h1>Quote <em>Leak</em> Audit</h1>
+    <p>Load real quote requests from HighLevel or a CRM export and see how fast they get worked, how many never hear back, and what that costs in commission. No guessing at the numbers.</p>
+  </header>
+
+  <section class="card" aria-labelledby="src-h">
+    <h2 id="src-h">1. Load your quote requests</h2>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="t-demo" aria-selected="true" aria-controls="p-demo" type="button">Demo agency</button>
+      <button class="tab" role="tab" id="t-csv" aria-selected="false" aria-controls="p-csv" type="button">Upload CSV</button>
+      <button class="tab" role="tab" id="t-ghl" aria-selected="false" aria-controls="p-ghl" type="button">Connect HighLevel</button>
+    </div>
+
+    <div class="pane" id="p-demo" role="tabpanel" aria-labelledby="t-demo">
+      <p class="muted">A made-up trucking agency with 90 days of sample quote requests, so you can see what the audit shows. None of it is real client data.</p>
+      <div><button class="btn primary" id="load-demo" type="button">Load demo data</button></div>
+    </div>
+
+    <div class="pane" id="p-csv" role="tabpanel" aria-labelledby="t-csv" hidden>
+      <p class="muted">Export your leads or opportunities from HighLevel, AgencyZoom, EZLynx, HawkSoft or any CRM as a CSV. The file is read in your browser and never uploaded anywhere.</p>
+      <label class="drop" id="drop" for="file" tabindex="0"><b>Choose a CSV file</b> or drop it here<input type="file" id="file" accept=".csv,text/csv" hidden></label>
+      <div id="mapper" class="pane" hidden>
+        <p><b id="file-name"></b> <span class="muted" id="file-rows"></span></p>
+        <p class="muted">Match your columns. We guessed where we could.</p>
+        <div class="map" id="map"></div>
+        <div><button class="btn primary" id="use-csv" type="button">Run the audit</button></div>
+      </div>
+      <p class="msg" id="csv-msg" role="status"></p>
+      <details>
+        <summary class="muted">What columns does the file need?</summary>
+        <p class="muted" style="margin-top:8px">One row per quote request. Only the created date is required. The more columns you include, the less you have to estimate.</p>
+        <pre class="fmt">created_at,status,premium,first_contact_at
+2026-10-01 09:14,won,14200,2026-10-01 09:17
+2026-10-01 13:40,lost,,2026-10-02 10:05
+2026-10-02 07:55,open,,</pre>
+        <p class="fine">status: won/bound/sold, lost/dead, or anything else for open. first_contact_at: when someone at the agency first called, texted or emailed. Leave blank if nobody did.</p>
+      </details>
+    </div>
+
+    <div class="pane" id="p-ghl" role="tabpanel" aria-labelledby="t-ghl" hidden>
+      <p class="muted">Pull the last 90 days straight from a HighLevel sub-account. Create a Private Integration in <b>Settings &gt; Private Integrations</b> with only two read scopes: <b>View Opportunities</b> and <b>View Conversation Messages</b>. Delete it when you're done.</p>
+      <div class="row">
+        <div><label class="l" for="ghl-token">Private Integration token</label><input type="password" id="ghl-token" placeholder="pit-…" autocomplete="off"></div>
+        <div><label class="l" for="ghl-loc">Location ID</label><input type="text" id="ghl-loc" placeholder="Settings > Business Profile" autocomplete="off"></div>
+        <div style="flex:0 1 140px"><label class="l" for="ghl-days">Look back</label><select id="ghl-days"><option value="30">30 days</option><option value="90" selected>90 days</option><option value="180">180 days</option></select></div>
+      </div>
+      <div><button class="btn primary" id="ghl-go" type="button">Pull my data</button></div>
+      <p class="msg" id="ghl-msg" role="status"></p>
+      <p class="fine">The token is sent once to pull your data and is never saved. Only dates, statuses and policy values come back. No names, phone numbers or messages.</p>
+    </div>
+  </section>
+
+  <section class="card" id="findings" aria-labelledby="f-h">
+    <div class="source" id="source"></div>
+    <h2 id="f-h">2. What the data shows</h2>
+    <div class="tiles" id="tiles"></div>
+    <div>
+      <p class="l" style="margin:0 0 8px;font-weight:600">Time to first response</p>
+      <div class="bars" id="bars"></div>
+    </div>
+    <p class="fine" id="findings-note"></p>
+  </section>
+
+  <section class="card" aria-labelledby="c-h">
+    <h2 id="c-h">3. What it's costing</h2>
+    <p class="muted" style="margin:0">Numbers marked <span class="badge data">From data</span> came from the file or HighLevel. You can still change any of them.</p>
+    <div class="calc">
+      <div class="inputs" id="inputs"></div>
+      <aside class="result" aria-live="polite">
+        <div class="tag">Estimated commission lost</div>
+        <div class="big" id="annualComm">$0 <small>/ year</small></div>
+        <div class="stats">
+          <div class="stat"><b id="newComm">$0</b><span>From unworked quote requests, per year</span></div>
+          <div class="stat"><b id="renComm">$0</b><span>From lost renewals, per year</span></div>
+          <div class="stat"><b id="monthlyComm">$0</b><span>Total per month</span></div>
+          <div class="stat"><b id="annualPrem">$0</b><span>Premium written elsewhere per year</span></div>
+        </div>
+        <p>Estimates based on the data and inputs shown, not a promise of results. Results vary by market, budget and offer.</p>
+        <div class="ctas"><a class="btn amber" id="book-btn" href="#book">Book a free 20-min review</a></div>
+        <p id="book-note" hidden>Online booking is being set up. Reach out to One Loco directly to schedule.</p>
+      </aside>
+    </div>
+    <div class="math">
+      <table><tbody>
+        <tr><td>Requests with no follow-up per month</td><td class="f" id="f1"></td><td class="v" id="v1"></td></tr>
+        <tr><td>Policies those requests could have bound</td><td class="f" id="f2"></td><td class="v" id="v2"></td></tr>
+        <tr><td>New-business commission lost per month</td><td class="f" id="f3"></td><td class="v" id="v3"></td></tr>
+        <tr><td>Renewal commission lost per month</td><td class="f" id="f4"></td><td class="v" id="v4"></td></tr>
+        <tr class="total"><td>Total commission lost per year</td><td class="f">(new business + renewals) × 12</td><td class="v" id="v5"></td></tr>
+      </tbody></table>
+    </div>
+    <ul class="assume">
+      <li>"No follow-up" means no outbound call, text or email was logged after the request came in. Calls made from a personal cell outside the CRM won't show up.</li>
+      <li>Assumes unworked requests would bind at the same rate as the worked ones. Some may be poor fits for your markets, so the real number could be lower.</li>
+      <li>Bind rate counts only decided requests (won or lost) that got a follow-up. Open quotes are left out.</li>
+      <li>Average premium comes from won opportunities that have a dollar value filled in. If none do, it stays an estimate.</li>
+      <li>Counts first-year commission only. Renewing policies pay again each year, so the long-term cost is higher.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <b>One Loco</b>
+    <span>Meta ads and GoHighLevel follow-up for trucking insurance agencies. This audit gives planning estimates only. It is not financial advice and does not promise any result.</span>
+  </footer>
+</div>
+
+<script>
+// Set these before hosting. WORKER_URL is the deployed worker.js that relays the HighLevel pull.
+const BOOKING_URL = "";
+const WORKER_URL = "";
+
+const $ = id => document.getElementById(id);
+const money = n => "$" + Math.round(n).toLocaleString("en-US");
+const num1 = n => (Math.round(n * 10) / 10).toLocaleString("en-US");
+const pctf = n => Math.round(n * 100) + "%";
+const MIN = 60000, DAY = 86400000;
+
+// ---------- Calculator inputs ----------
+const FIELDS = [
+  { id: "inq", label: "Quote requests per month", help: "New quote requests in a typical month.", max: 500, step: 1 },
+  { id: "miss", label: "Requests that never get a follow-up", help: "No outbound call, text or email logged.", max: 100, step: 1, unit: "%" },
+  { id: "close", label: "Quote-to-bind rate", help: "Out of worked requests that were decided, the share that bound.", max: 100, step: 1, unit: "%" },
+  { id: "sale", label: "Average annual premium per policy", help: "Typical yearly premium for a bound account.", max: 60000, step: 250, pre: "$" },
+  { id: "comm", label: "Your average commission rate", help: "Blended across carriers and MGAs. Not in the data, so enter it.", max: 30, step: 0.5, unit: "%" },
+  { head: "Renewals" },
+  { id: "ren", label: "Policies up for renewal per month", help: "Not in the data yet. Enter your own number.", max: 300, step: 1 },
+  { id: "rlost", label: "Renewals lost because nobody reached out", help: "Lost without contact 60 to 90 days out. Set to 0 to leave out.", max: 100, step: 1, unit: "%" }
+];
+const DEFAULTS = { inq: 80, miss: 35, close: 15, sale: 12000, comm: 12, ren: 20, rlost: 10 };
+const vals = { ...DEFAULTS };
+const origin = Object.fromEntries(Object.keys(DEFAULTS).map(k => [k, "est"]));
+const BADGE = { data: "From data", est: "Estimate", edit: "Edited" };
+
+$("inputs").innerHTML = FIELDS.map(f => f.head ? `<h3 class="subhead">${f.head}</h3>` : `
+  <div class="field">
+    <div class="top"><label for="${f.id}">${f.label}</label><span class="badge est" id="${f.id}-b">Estimate</span></div>
+    <p class="help">${f.help}</p>
+    <div class="entry"><input type="range" id="${f.id}-r" min="0" max="${f.max}" step="${f.step}" aria-label="${f.label} slider">
+      <div class="num">${f.pre ? `<span>${f.pre}</span>` : ""}<input id="${f.id}" type="number" inputmode="decimal" min="0" step="${f.step}">${f.unit ? `<span>${f.unit}</span>` : ""}</div></div>
+  </div>`).join("");
+
+function setBadge(id) { const b = $(id + "-b"); b.className = "badge " + origin[id]; b.textContent = BADGE[origin[id]]; }
+function setVal(id, v, how) {
+  const f = FIELDS.find(x => x.id === id);
+  v = Math.max(0, Number.isFinite(v) ? v : 0);
+  if (f.unit === "%") v = Math.min(100, v);
+  vals[id] = Math.round(v * 10) / 10;
+  $(id).value = vals[id]; $(id + "-r").max = Math.max(f.max, vals[id]); $(id + "-r").value = vals[id];
+  if (how) { origin[id] = how; setBadge(id); }
+}
+for (const f of FIELDS.filter(f => f.id)) {
+  setVal(f.id, vals[f.id]);
+  const on = el => () => { setVal(f.id, parseFloat(el.value), "edit"); render(); };
+  $(f.id).addEventListener("input", on($(f.id)));
+  $(f.id + "-r").addEventListener("input", on($(f.id + "-r")));
+  $(f.id).addEventListener("blur", () => { $(f.id).value = vals[f.id]; });
+}
+
+function render() {
+  const lostLeads = vals.inq * vals.miss / 100;
+  const lostDeals = lostLeads * vals.close / 100;
+  const newPrem = lostDeals * vals.sale, newComm = newPrem * vals.comm / 100;
+  const renLost = vals.ren * vals.rlost / 100, renPrem = renLost * vals.sale, renComm = renPrem * vals.comm / 100;
+  const monthly = newComm + renComm;
+  $("annualComm").innerHTML = money(monthly * 12) + " <small>/ year</small>";
+  $("newComm").textContent = money(newComm * 12);
+  $("renComm").textContent = money(renComm * 12);
+  $("monthlyComm").textContent = money(monthly);
+  $("annualPrem").textContent = money((newPrem + renPrem) * 12);
+  $("f1").textContent = `${num1(vals.inq)} × ${vals.miss}%`; $("v1").textContent = num1(lostLeads);
+  $("f2").textContent = `${num1(lostLeads)} × ${vals.close}% bind rate`; $("v2").textContent = num1(lostDeals);
+  $("f3").textContent = `${num1(lostDeals)} × ${money(vals.sale)} × ${vals.comm}%`; $("v3").textContent = money(newComm);
+  $("f4").textContent = `${num1(renLost)} renewals × ${money(vals.sale)} × ${vals.comm}%`; $("v4").textContent = money(renComm);
+  $("v5").textContent = money(monthly * 12);
+}
+
+// ---------- Analysis ----------
+function analyze(rows, label, isDemo) {
+  rows = rows.filter(r => Number.isFinite(r.created));
+  if (!rows.length) throw new Error("No rows with a readable created date.");
+  const times = rows.map(r => r.created);
+  const span = Math.max(14 * DAY, Math.max(...times) - Math.min(...times) + DAY);
+  const months = span / (30.44 * DAY);
+  const hasContact = rows.some(r => r.first !== undefined);
+  const hasStatus = rows.some(r => r.status !== undefined);
+  const contacted = rows.filter(r => Number.isFinite(r.first));
+  const never = rows.length - contacted.length;
+  const mins = contacted.map(r => Math.max(0, (r.first - r.created) / MIN)).sort((a, b) => a - b);
+  const median = mins.length ? mins[Math.floor(mins.length / 2)] : null;
+  const decided = (hasContact ? contacted : rows).filter(r => r.status === "won" || r.status === "lost");
+  const won = decided.filter(r => r.status === "won").length;
+  const bind = decided.length >= 5 ? won / decided.length : null;
+  const prems = rows.filter(r => r.status === "won" && r.premium > 0).map(r => r.premium);
+  const avgPrem = prems.length ? prems.reduce((a, b) => a + b, 0) / prems.length : null;
+  const res = { n: rows.length, months, from: Math.min(...times), to: Math.max(...times), hasContact, hasStatus, never, mins, median, bind, decided: decided.length, won, avgPrem, prems: prems.length };
+
+  setVal("inq", rows.length / months, "data");
+  if (hasContact) setVal("miss", never / rows.length * 100, "data"); else { origin.miss = "est"; setBadge("miss"); }
+  if (bind !== null) setVal("close", bind * 100, "data"); else { origin.close = "est"; setBadge("close"); }
+  if (avgPrem !== null) setVal("sale", avgPrem, "data"); else { origin.sale = "est"; setBadge("sale"); }
+  for (const k of ["comm", "ren", "rlost"]) if (origin[k] === "data") { origin[k] = "est"; setBadge(k); }
+  showFindings(res, label, isDemo);
+  render();
+  $("findings").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+}
+
+function fmtMins(m) {
+  if (m === null) return "—";
+  if (m < 1) return "under 1 min";
+  if (m < 60) return Math.round(m) + " min";
+  if (m < 1440) return num1(m / 60) + " hr";
+  return num1(m / 1440) + " days";
+}
+const fmtDate = t => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+function showFindings(r, label, isDemo) {
+  $("source").innerHTML = `<span class="pill ${isDemo ? "demo" : "real"}">${isDemo ? "Demo data" : "Real data"}</span>
+    <span class="agency">${esc(label)}</span>
+    <span class="muted">${r.n.toLocaleString("en-US")} quote requests · ${fmtDate(r.from)} to ${fmtDate(r.to)}</span>`;
+  const within5 = r.hasContact ? r.mins.filter(m => m <= 5).length / r.n : null;
+  const tiles = [
+    [num1(r.n / r.months), "Quote requests per month", ""],
+    [r.hasContact ? pctf(r.never / r.n) : "—", "Never got a follow-up", r.hasContact ? (r.never / r.n > .1 ? "bad" : "ok") : ""],
+    [r.hasContact ? fmtMins(r.median) : "—", "Median time to first response", r.median === null ? "" : (r.median > 5 ? "bad" : "ok")],
+    [within5 === null ? "—" : pctf(within5), "Reached within 5 minutes", within5 === null ? "" : (within5 < .5 ? "bad" : "ok")],
+    [r.bind === null ? "—" : pctf(r.bind), `Bind rate (${r.won} of ${r.decided} decided)`, ""],
+    [r.avgPrem === null ? "—" : money(r.avgPrem), `Avg premium (${r.prems} won with a value)`, ""]
+  ];
+  $("tiles").innerHTML = tiles.map(([v, l, c]) => `<div class="tile ${c}"><b>${v}</b><span>${l}</span></div>`).join("");
+  if (r.hasContact) {
+    const b = [["Under 5 min", m => m <= 5, ""], ["5 to 60 min", m => m > 5 && m <= 60, ""], ["1 to 24 hours", m => m > 60 && m <= 1440, "slow"], ["Over a day", m => m > 1440, "slow"]];
+    const rowsH = b.map(([l, f, c]) => [l, r.mins.filter(f).length, c]).concat([["Never", r.never, "never"]]);
+    $("bars").innerHTML = rowsH.map(([l, n, c]) => `<div class="bar ${c}"><span>${l}</span><div class="track"><div class="fill" style="width:${(n / r.n * 100).toFixed(1)}%"></div></div><span class="n">${n} · ${pctf(n / r.n)}</span></div>`).join("");
+  } else $("bars").innerHTML = `<p class="muted" style="margin:0">This file has no first-contact column, so response times can't be measured. The no-follow-up rate below is still an estimate.</p>`;
+  const notes = [];
+  if (!r.hasStatus) notes.push("No status column, so the bind rate is still an estimate.");
+  else if (r.bind === null) notes.push("Fewer than 5 decided requests, so the bind rate is still an estimate.");
+  if (r.avgPrem === null) notes.push("No won requests with a premium value, so average premium is still an estimate.");
+  $("findings-note").textContent = notes.join(" ");
+}
+
+function emptyFindings() {
+  $("source").innerHTML = `<span class="muted">No data loaded yet. Load the demo agency or your own data above.</span>`;
+  $("tiles").innerHTML = ""; $("bars").innerHTML = ""; $("findings-note").textContent = "";
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+// ---------- Demo data (fictional) ----------
+function demoRows() {
+  let s = 20261027;
+  const rnd = () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const end = Date.UTC(2026, 9, 24, 22), rows = [];
+  for (let d = 0; d < 90; d++) {
+    const day = end - d * DAY, dow = new Date(day).getUTCDay();
+    const n = Math.round((dow === 0 || dow === 6 ? 1 : 3.2) * (0.6 + rnd() * 0.8));
+    for (let i = 0; i < n; i++) {
+      const created = day - Math.floor(rnd() * 12 * 3600000);
+      const p = rnd();
+      let mins = null;
+      if (p < 0.27) mins = 1 + rnd() * 4;
+      else if (p < 0.50) mins = 5 + rnd() * 55;
+      else if (p < 0.66) mins = 60 + rnd() * 1380;
+      else if (p < 0.76) mins = 1440 + rnd() * 4320;
+      const bindChance = mins === null ? 0 : mins <= 5 ? 0.24 : mins <= 60 ? 0.17 : 0.09;
+      const q = rnd();
+      const status = mins === null ? (q < 0.4 ? "lost" : "open") : q < bindChance ? "won" : q < bindChance + 0.45 ? "lost" : "open";
+      const premium = status === "won" ? Math.round((7000 + rnd() * rnd() * 22000) / 50) * 50 : NaN;
+      rows.push({ created, first: mins === null ? NaN : created + mins * MIN, status, premium });
+    }
+  }
+  return rows;
+}
+$("load-demo").addEventListener("click", () => analyze(demoRows(), "Sample Trucking Agency", true));
+
+// ---------- CSV ----------
+function parseCsv(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  text = text.replace(/^﻿/, "");
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ""));
+}
+function parseDate(v) {
+  v = String(v || "").trim(); if (!v) return NaN;
+  if (/^\d{4}-\d{2}-\d{2}/.test(v)) { const t = Date.parse(v.replace(" ", "T")); return t; }
+  const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[ ,T]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp][Mm])?)?/);
+  if (m) {
+    let [, mo, d, y, h = "0", mi = "0", se = "0", ap] = m; y = +y < 100 ? 2000 + +y : +y; h = +h;
+    if (ap) { ap = ap.toLowerCase(); if (ap === "pm" && h < 12) h += 12; if (ap === "am" && h === 12) h = 0; }
+    return new Date(y, +mo - 1, +d, h, +mi, +se).getTime();
+  }
+  return Date.parse(v);
+}
+function normStatus(v) {
+  v = String(v || "").toLowerCase();
+  if (/\b(won|bound|sold|closed won|issued|written)\b/.test(v)) return "won";
+  if (/\b(lost|dead|declined|abandoned|closed lost|not interested|no sale)\b/.test(v)) return "lost";
+  return "open";
+}
+const ROLES = [
+  { key: "created", label: "Created date (required)", re: /^(created(_at| at| on|date)?|date created|date added|created date|lead date|date|added)$/i },
+  { key: "status", label: "Status", re: /^(status|opportunity status|stage|lead status|outcome)$/i },
+  { key: "premium", label: "Premium / value", re: /(premium|monetary value|opportunity value|lead value|^value$|amount)/i },
+  { key: "first", label: "First contact date", re: /(first[ _]?(contact|response|outreach|touch)|contacted at|first call)/i }
+];
+let csv = null;
+function loadFile(file) {
+  const msg = $("csv-msg"); msg.className = "msg"; msg.textContent = "";
+  if (!file) return;
+  if (file.size > 25 * 1024 * 1024) { msg.className = "msg err"; msg.textContent = "That file is over 25 MB. Export a shorter date range."; return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const rows = parseCsv(String(reader.result));
+    if (rows.length < 2) { msg.className = "msg err"; msg.textContent = "The file needs a header row and at least one quote request."; return; }
+    csv = { name: file.name, head: rows[0].map(h => h.trim()), body: rows.slice(1) };
+    $("file-name").textContent = file.name;
+    $("file-rows").textContent = `· ${csv.body.length.toLocaleString("en-US")} rows`;
+    $("map").innerHTML = ROLES.map(r => {
+      const guess = csv.head.findIndex(h => r.re.test(h));
+      return `<div><label class="l" for="m-${r.key}">${r.label}</label><select id="m-${r.key}"><option value="-1">Not in file</option>${csv.head.map((h, i) => `<option value="${i}" ${i === guess ? "selected" : ""}>${esc(h || "Column " + (i + 1))}</option>`).join("")}</select></div>`;
+    }).join("");
+    $("mapper").hidden = false;
+  };
+  reader.onerror = () => { msg.className = "msg err"; msg.textContent = "The file couldn't be read. Try exporting it again."; };
+  reader.readAsText(file);
+}
+$("file").addEventListener("change", e => loadFile(e.target.files[0]));
+const drop = $("drop");
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); loadFile(e.dataTransfer.files[0]); });
+$("use-csv").addEventListener("click", () => {
+  const msg = $("csv-msg");
+  const idx = Object.fromEntries(ROLES.map(r => [r.key, +$("m-" + r.key).value]));
+  if (idx.created < 0) { msg.className = "msg err"; msg.textContent = "Pick the column that holds the date each request came in."; return; }
+  const rows = csv.body.map(c => {
+    const r = { created: parseDate(c[idx.created]) };
+    if (idx.status >= 0) r.status = normStatus(c[idx.status]);
+    if (idx.premium >= 0) r.premium = parseFloat(String(c[idx.premium] || "").replace(/[$,\s]/g, ""));
+    if (idx.first >= 0) r.first = parseDate(c[idx.first]);
+    return r;
+  });
+  const bad = rows.filter(r => !Number.isFinite(r.created)).length;
+  try {
+    analyze(rows, csv.name.replace(/\.csv$/i, ""), false);
+    msg.className = "msg ok"; msg.textContent = bad ? `Audit run. ${bad} rows were skipped because their date couldn't be read.` : "Audit run.";
+  } catch (e) { msg.className = "msg err"; msg.textContent = e.message + " Check that the created date column is right."; }
+});
+
+// ---------- Connect HighLevel ----------
+$("ghl-go").addEventListener("click", async () => {
+  const msg = $("ghl-msg"), btn = $("ghl-go");
+  const token = $("ghl-token").value.trim(), locationId = $("ghl-loc").value.trim();
+  if (!WORKER_URL) { msg.className = "msg err"; msg.textContent = "Connecting to HighLevel isn't turned on for this copy of the audit yet. Use Upload CSV with a HighLevel opportunities export instead."; return; }
+  if (!token.startsWith("pit-")) { msg.className = "msg err"; msg.textContent = "Paste the Private Integration token. It starts with pit-."; return; }
+  if (!locationId) { msg.className = "msg err"; msg.textContent = "Enter the location ID from Settings > Business Profile."; return; }
+  btn.disabled = true; msg.className = "msg"; msg.textContent = "Pulling quote requests and follow-ups from HighLevel. This can take a minute.";
+  try {
+    const res = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, locationId, days: $("ghl-days").value }) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "HighLevel didn't answer the request. Try again in a minute.");
+    $("ghl-token").value = "";
+    const rows = data.rows.map(r => ({ created: Date.parse(r.created_at), status: r.status, premium: Number(r.premium) || NaN, first: r.first_contact_at ? Date.parse(r.first_contact_at) : NaN }));
+    if (!rows.length) throw new Error("No quote requests (opportunities) were created in that window.");
+    analyze(rows, "HighLevel sub-account", false);
+    msg.className = "msg ok"; msg.textContent = `Pulled ${rows.length} quote requests. The token was cleared from this page.`;
+  } catch (e) {
+    msg.className = "msg err"; msg.textContent = e.message === "Failed to fetch" ? "Couldn't reach the connection service. Check your internet connection and try again." : e.message;
+  } finally { btn.disabled = false; }
+});
+
+// ---------- Tabs, booking, start ----------
+const tabs = ["demo", "csv", "ghl"];
+function showTab(t) { for (const x of tabs) { $("t-" + x).setAttribute("aria-selected", x === t); $("p-" + x).hidden = x !== t; } }
+for (const t of tabs) $("t-" + t).addEventListener("click", () => showTab(t));
+if (BOOKING_URL) { $("book-btn").href = BOOKING_URL; $("book-btn").target = "_blank"; $("book-btn").rel = "noopener noreferrer"; }
+else $("book-btn").addEventListener("click", e => { e.preventDefault(); $("book-note").hidden = false; });
+
+emptyFindings();
+analyze(demoRows(), "Sample Trucking Agency", true);
+window.scrollTo(0, 0);
+</script>
+
+</body></html>
