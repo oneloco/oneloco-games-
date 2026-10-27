@@ -359,6 +359,7 @@ form.addEventListener("submit", async e => {
     const payload = {
       name: $("su-name").value.trim(), agency: $("su-agency").value.trim(), email,
       createdAt: new Date().toISOString(), inputs: { ...vals },
+      estimatedMonthlyLoss: Math.round(r.monthlyComm),
       estimatedAnnualCommissionLoss: Math.round(r.annualComm)
     };
     if (db) await db.collection("signups").doc().set(payload);
