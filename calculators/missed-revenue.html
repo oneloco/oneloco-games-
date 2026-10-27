@@ -304,13 +304,18 @@ form.addEventListener("submit", async e => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.className = "msg err"; msg.textContent = "Enter a valid email address, like name@business.com."; return; }
   msg.className = "msg"; msg.textContent = "Saving…";
   const db = await dbP;
-  if (!db) { msg.className = "msg err"; msg.textContent = "Signup isn't available in this view. Use the booking button to reach us."; return; }
   try {
     const r = calc();
-    await db.collection("signups").doc().set({
+    const payload = {
       name, email, createdAt: new Date().toISOString(),
       inputs: { ...vals }, estimatedMonthlyLoss: Math.round(r.monthly)
-    });
+    };
+    if (db) await db.collection("signups").doc().set(payload);
+    else {
+      // Hosted outside Claude: the site's /api/signup forwards to the HighLevel webhook.
+      const res = await fetch("/api/signup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, page: location.hostname }) });
+      if (!res.ok) throw new Error("signup failed");
+    }
     form.reset(); msg.className = "msg ok"; msg.textContent = "You're on the list. Check your inbox for the playbook.";
   } catch (err) {
     msg.className = "msg err"; msg.textContent = "Your signup couldn't be saved. Try again, or use the booking button to reach us.";

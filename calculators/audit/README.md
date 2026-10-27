@@ -10,7 +10,7 @@ Commission rate and renewals are still entered by hand.
 |---|---|---|
 | Demo agency | Sales calls, content, walkthroughs | Built in. A fictional agency with 90 days of generated data. |
 | Upload CSV | Any agency, any CRM or AMS | Export leads/opportunities, drop the file on the page. Parsed in the browser, never uploaded. |
-| Connect HighLevel | Agencies on GHL | Paste a read-only Private Integration token + location ID. Needs `worker.js` deployed. |
+| Connect HighLevel | Agencies on GHL | Paste a read-only Private Integration token + location ID. Works on the hosted site. |
 
 ## Client audits (One Loco)
 
@@ -24,18 +24,14 @@ The CSV holds dates, statuses and premium values only. No names, phones, emails 
 
 ## Turning on "Connect HighLevel"
 
-1. `npx wrangler deploy` in this folder (Cloudflare account needed). It deploys `worker.js` + `ghl-pull.js`.
-2. Set `ALLOWED_ORIGIN` in `wrangler.toml` to the site hosting the page.
-3. Set `WORKER_URL` near the top of the script in `index.html` to the worker's URL.
-
-The worker relays one read-only pull and never stores or logs the token.
+The hosted site (see `site/README.md`) serves this page at audit.globaltlm.com with the HighLevel relay at `/api/ghl`, so the button works there with no extra setup.
 
 ## Files
 
 - `index.html` – the audit page (standalone)
 - `ghl-pull.js` – shared HighLevel pull (opportunities + outbound messages → anonymized rows)
 - `pull-ghl.mjs` – CLI for client audits
-- `worker.js`, `wrangler.toml` – proxy for the Connect HighLevel button
+- The relay for the Connect HighLevel button lives in `site/_worker.js`
 
 ## How the numbers are measured
 
