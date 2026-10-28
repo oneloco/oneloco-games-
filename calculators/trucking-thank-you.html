@@ -30,6 +30,10 @@ p { margin: 0; }
 .muted { color: var(--muted); }
 a { color: var(--brand); }
 [hidden] { display: none !important; }
+.book { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; }
+.book h2 { margin: 0; }
+.btn { display: inline-flex; align-items: center; justify-content: center; font: 700 15px var(--body); border-radius: 8px; padding: 12px 18px; text-decoration: none; background: var(--amber); color: var(--amber-ink); }
+.btn:hover { filter: brightness(1.07); }
 footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 16px; }
 footer b { color: var(--fg); }
 footer a { color: inherit; text-decoration: underline; }
@@ -63,11 +67,18 @@ if (/^\d{6,20}$/.test(META_PIXEL_ID)) {
       <li><strong>Start with item 1 of the checklist.</strong> Text every quote request within 5 minutes.</li>
     </ol>
   </section>
+  <section class="card book" id="book-step" hidden>
+    <h2>Prefer to pick a time yourself?</h2>
+    <a class="btn" href="/book/">Book your free review</a>
+  </section>
   <p class="muted">Not the agency owner? Forward the checklist email to whoever runs your agency.</p>
-  <p class="muted"><a href="/">Back to the calculator</a></p>
+  <p class="muted"><a href="/">Back to the checklist page</a></p>
   <script>
-  // Hide the text step when we know the visitor didn't check the text box.
-  if (GTLM_LEAD && GTLM_LEAD.sms === false) document.getElementById("text-step").hidden = true;
+  // When we know the visitor didn't check the text box, hide the text step and offer self-booking instead.
+  if (GTLM_LEAD && GTLM_LEAD.sms === false) {
+    document.getElementById("text-step").hidden = true;
+    document.getElementById("book-step").hidden = false;
+  }
   </script>
   <footer>
     <b>Global TLM by One Loco</b> · Warflower Productions Ltd. Co., doing business as One Loco ·
