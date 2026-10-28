@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Trucking Agency Lead Machine Checklist | Global TLM by One Loco</title>
-<meta name="description" content="Stop losing trucking quotes to whoever calls first. Get the Trucking Agency Lead Machine Checklist and a free 20-minute Quote Leak Review from Global TLM by One Loco.">
+<meta name="description" content="Stop losing trucking quotes to whoever calls first. Get the Trucking Agency Lead Machine Checklist, the Follow-Up Playbook and a free 20-minute Quote Leak Review from Global TLM by One Loco.">
 <script>
 // Meta Pixel. The ID is filled in at build time from site/meta-pixel-id.txt; nothing loads while it is empty.
 const META_PIXEL_ID = "__META_PIXEL_ID__";
@@ -80,8 +80,8 @@ section > p.lead { color: var(--muted); max-width: 62ch; }
 @media (max-width: 720px) { .problems { grid-template-columns: 1fr; } }
 .problems li { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--leak); border-radius: 10px; padding: 16px 18px; font-weight: 600; font-size: 17px; line-height: 1.35; }
 
-.get { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 720px) { .get { grid-template-columns: 1fr; } }
+.get { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) { .get { grid-template-columns: 1fr; } }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 12px; align-content: start; min-width: 0; }
 .card h3 { font-family: var(--display); font-weight: 700; font-size: 22px; text-transform: uppercase; margin: 0; letter-spacing: .01em; }
 .card .tag { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--brand); }
@@ -205,20 +205,21 @@ footer b { color: var(--fg); }
     <div class="hero-copy">
       <div class="eyebrow">For trucking insurance agency owners and independent agents</div>
       <h1>Stop losing trucking quotes to <em>whoever calls first.</em></h1>
-      <p class="sub">Get the Trucking Agency Lead Machine Checklist, plus a free 20-minute review of where your quote requests leak.</p>
+      <p class="sub">Get the Trucking Agency Lead Machine Checklist and the Follow-Up Playbook, plus a free 20-minute review of where your quote requests leak.</p>
       <div class="inside">
-        <b>What's in the checklist</b>
+        <b>What's in it</b>
         <ul class="ticks">
           <li>The 9 habits that keep quote requests from going cold</li>
           <li>When to text, call and chase every quote</li>
           <li>Renewal outreach 60–90 days out</li>
+          <li>The Follow-Up Playbook: first texts, a first email and two 7-day follow-up sequences</li>
         </ul>
       </div>
       <p class="for">Producer or CSR at someone else's agency? <a href="#not-owner">Pass this on to your owner.</a></p>
     </div>
 
     <section class="formcard" id="get-checklist" aria-labelledby="form-h">
-      <h2 id="form-h">Get the checklist</h2>
+      <h2 id="form-h">Get the checklist + playbook</h2>
       <form class="signup" id="signup" novalidate>
         <div class="name-row">
           <div><label for="su-name">First name</label>
@@ -233,7 +234,7 @@ footer b { color: var(--fg); }
         <label for="su-phone">Mobile phone</label>
         <input type="tel" id="su-phone" name="phone" autocomplete="tel" inputmode="tel" required maxlength="20" placeholder="(555) 555-5555">
         <label class="consent" for="su-sms"><input type="checkbox" id="su-sms" name="smsConsent"><span>Yes, text me about my checklist request and to schedule a free review call. I agree to receive texts from Global TLM by One Loco (Warflower Productions Ltd. Co.). Msg frequency varies. Msg &amp; data rates may apply. Reply HELP for help, STOP to opt out. Consent is not a condition of purchase. <a href="https://oneloco.io/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://oneloco.io/terms-conditions/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span></label>
-        <button class="btn amber" type="submit" id="su-btn">Send me the checklist</button>
+        <button class="btn amber" type="submit" id="su-btn">Send me both</button>
         <p class="msg" id="su-msg" role="status" aria-live="polite"></p>
         <p class="fine">We only use your email to send the checklist and related tips for trucking agencies. Unsubscribe anytime.</p>
       </form>
@@ -264,9 +265,20 @@ footer b { color: var(--fg); }
         <span class="more">+ 6 more in the full checklist</span>
       </div>
       <div class="card">
+        <span class="tag">Free download</span>
+        <h3>The Follow-Up Playbook</h3>
+        <p>10 pages of ready-to-use templates:</p>
+        <ul class="ticks">
+          <li>Three first-text templates under 160 characters</li>
+          <li>A first email with four qualifying questions</li>
+          <li>Two 7-day follow-up sequences: quotes never answered, and quotes that went quiet</li>
+          <li>A missed-call text-back</li>
+        </ul>
+      </div>
+      <div class="card">
         <span class="tag">Free, 20 minutes</span>
         <h3>A Quote Leak Review</h3>
-        <p>A call with Joe to look at:</p>
+        <p>A Google Meet with Joe to look at:</p>
         <ul class="ticks">
           <li>How your quote requests come in</li>
           <li>How fast they're worked</li>
@@ -356,7 +368,7 @@ footer b { color: var(--fg); }
           <div class="stat"><b id="renLost">0</b><span>Renewals per month lost</span></div>
         </div>
         <p class="disclaimer">Estimates only, from your own inputs. Not a promise of results. Real numbers vary by market, carrier appetite and how fast quote requests are worked.</p>
-        <a class="btn amber" href="#get-checklist">Get the checklist</a>
+        <a class="btn amber" href="#get-checklist">Get the checklist + playbook</a>
       </aside>
     </div>
 
@@ -414,11 +426,11 @@ footer b { color: var(--fg); }
   <section aria-labelledby="faq-h">
     <h2 class="sec" id="faq-h">Questions</h2>
     <div class="faq">
-      <div><h3>Is it free?</h3><p>Yes. The checklist and the 20-minute review cost nothing, and you're not signing up for anything.</p></div>
+      <div><h3>Is it free?</h3><p>Yes. The checklist, the playbook and the 20-minute review cost nothing.</p></div>
       <div><h3>Who is it for?</h3><p>Owners and managers of independent trucking insurance agencies, including solo agents, who write owner-operators and small fleets.</p></div>
       <div><h3>Do I need ads running already?</h3><p>No. The checklist works on quote requests from anywhere: web forms, calls and referrals. The review covers what you have today.</p></div>
     </div>
-    <div><a class="btn amber" href="#get-checklist" id="faq-cta">Send me the checklist</a></div>
+    <div><a class="btn amber" href="#get-checklist" id="faq-cta">Send me both</a></div>
   </section>
 
   <footer>
