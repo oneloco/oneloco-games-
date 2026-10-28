@@ -42,7 +42,9 @@ async function signup(req, env) {
   if (!env.SIGNUP_WEBHOOK_URL) return json({ error: "Signups aren't connected yet." }, 503);
   const clip = v => String(v ?? "").slice(0, 200);
   const payload = {
-    email, name: clip(body.name), agency: clip(body.agency), page: clip(body.page),
+    email, name: clip(body.name), last_name: clip(body.lastName), agency: clip(body.agency), page: clip(body.page),
+    phone: /^\+1\d{10}$/.test(String(body.phone || "")) ? String(body.phone) : undefined,
+    sms_consent: body.smsConsent === true ? "yes" : "no",
     estimated_monthly_loss: Number(body.estimatedMonthlyLoss) || undefined,
     estimated_annual_commission_loss: Number(body.estimatedAnnualCommissionLoss) || undefined,
     inputs: body.inputs && typeof body.inputs === "object" ? body.inputs : undefined,
