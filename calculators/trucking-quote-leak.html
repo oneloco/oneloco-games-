@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Trucking Quote Leak Calculator | Global TLM by One Loco</title>
+<meta name="description" content="Estimate how much commission your trucking insurance agency loses when quote requests and renewals don't get followed up. Free calculator and checklist from Global TLM by One Loco.">
 <script>
 // Meta Pixel. The ID is filled in at build time from site/meta-pixel-id.txt; nothing loads while it is empty.
 const META_PIXEL_ID = "__META_PIXEL_ID__";
@@ -13,10 +14,6 @@ if (/^\d{6,20}$/.test(META_PIXEL_ID)) {
   fbq("track", "PageView");
 }
 </script>
-</head>
-<body>
-<title>Trucking Quote Leak Calculator</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -48,15 +45,23 @@ if (/^\d{6,20}$/.test(META_PIXEL_ID)) {
   --brand: #7fa7dc; --brand-ink: #0b1626; --leak: #ff7b6e; --panel: #1a2a43; --panel-fg: #f3f6fa; --panel-muted: #a9b6c8; color-scheme: dark; }
 
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
-.wrap { max-width: 1060px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; gap: 28px; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1060px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 18px 56px; display: grid; gap: 28px; }
 
+.brandbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.brandbar b { font-family: var(--display); font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: .04em; }
+.brandbar span { font: 500 12px var(--mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+
+header.hero { display: grid; gap: 14px; }
 header h1 { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 7vw, 56px); line-height: 1; margin: 0; text-transform: uppercase; letter-spacing: .01em; text-wrap: balance; }
 header h1 em { font-style: normal; background: var(--amber); color: var(--amber-ink); padding: 0 .15em; }
-header p { color: var(--muted); margin: 12px 0 0; max-width: 62ch; }
-.eyebrow { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--brand); margin-bottom: 10px; }
+header p { color: var(--muted); margin: 0; max-width: 62ch; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.hero-actions a.skip { color: var(--muted); font-size: 14px; }
+.eyebrow { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--brand); }
 
-.calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; scroll-margin-top: 16px; }
 @media (max-width: 780px) { .calc { grid-template-columns: 1fr; } }
 .inputs { display: grid; gap: 14px; }
 .field { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; }
@@ -87,10 +92,12 @@ header p { color: var(--muted); margin: 12px 0 0; max-width: 62ch; }
 .btn.amber { background: var(--amber); color: var(--amber-ink); }
 .btn.outline { background: transparent; color: var(--panel-fg); border-color: rgba(255,255,255,.35); }
 .btn.primary { background: var(--brand); color: var(--brand-ink); }
+.btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
 .btn:hover { filter: brightness(1.07); }
-.btn:focus-visible, input:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.btn[disabled] { opacity: .6; cursor: wait; }
+.btn:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
-section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 14px; min-width: 0; }
+section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 14px; min-width: 0; scroll-margin-top: 16px; }
 section h2 { font-family: var(--display); font-weight: 700; font-size: 26px; margin: 0; text-transform: uppercase; letter-spacing: .01em; text-wrap: balance; }
 section > p { margin: 0; color: var(--muted); max-width: 65ch; }
 
@@ -118,6 +125,7 @@ li:last-child .check { border-bottom: 0; }
 form.signup { display: grid; gap: 10px; }
 form.signup label { font-weight: 600; font-size: 14px; }
 form.signup input[type="text"], form.signup input[type="email"], form.signup input[type="tel"] { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; width: 100%; }
+form.signup input[aria-invalid="true"] { border-color: var(--leak); }
 .msg { font-size: 14px; margin: 0; min-height: 1.4em; }
 .msg.ok { color: var(--brand); }
 .msg.err { color: var(--leak); }
@@ -128,18 +136,31 @@ form.signup input[type="text"], form.signup input[type="email"], form.signup inp
 .name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .name-row > div { display: grid; gap: 10px; }
 @media (max-width: 520px) { .name-row { grid-template-columns: 1fr; } }
-footer { color: var(--muted); font-size: 12px; max-width: 78ch; display: grid; gap: 6px; }
-footer b { font-family: var(--display); font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: var(--fg); }
-</style>
 
+.forward { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 24px; align-items: center; }
+@media (max-width: 640px) { .forward { grid-template-columns: 1fr; } }
+.forward .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.forward .copied { font-size: 13px; color: var(--brand); min-height: 1.3em; margin: 0; }
+
+footer { color: var(--muted); font-size: 12px; max-width: 78ch; display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 16px; }
+footer b { color: var(--fg); }
+</style>
+</head>
+<body>
 <div class="wrap">
-  <header>
-    <div class="eyebrow">For trucking insurance agencies</div>
+  <div class="brandbar"><b>Global TLM by One Loco</b><span>Global Trucking Lead Machine</span></div>
+
+  <header class="hero">
+    <div class="eyebrow">For trucking insurance agency owners and independent agents</div>
     <h1>How much commission is <em>leaking</em> out of your quote requests?</h1>
     <p>Owner-operators and small fleets shop fast. If a quote request sits while your producers are on the phone, the trucker usually binds with whoever called first. Enter a few numbers from a typical month to estimate what that costs your agency.</p>
+    <div class="hero-actions">
+      <a class="btn amber" href="#calculator">Start the calculator</a>
+      <a class="skip" href="#not-owner">Work at someone else's agency? Pass this on</a>
+    </div>
   </header>
 
-  <div class="calc">
+  <div class="calc" id="calculator">
     <div class="inputs">
       <div class="field">
         <label for="inq">Quote requests per month</label>
@@ -184,14 +205,14 @@ footer b { font-family: var(--display); font-size: 15px; text-transform: upperca
       <div class="tag">Estimated commission lost</div>
       <div class="big" id="annualComm">$0 <small>/ year</small></div>
       <div class="stats">
-        <div class="stat"><b id="newComm">$0</b><span>From new quote requests, per year</span></div>
-        <div class="stat"><b id="renComm">$0</b><span>From lost renewals, per year</span></div>
         <div class="stat"><b id="monthlyComm">$0</b><span>Total commission lost per month</span></div>
         <div class="stat"><b id="annualPrem">$0</b><span>Premium that went elsewhere per year</span></div>
+        <div class="stat"><b id="newComm">$0</b><span>From new quote requests, per year</span></div>
+        <div class="stat"><b id="renComm">$0</b><span>From lost renewals, per year</span></div>
         <div class="stat"><b id="lostDeals">0</b><span>New policies per month not bound</span></div>
         <div class="stat"><b id="renLost">0</b><span>Renewals per month lost</span></div>
       </div>
-      <p class="disclaimer">Estimates based on your inputs, not a promise of results. Real numbers vary by market, budget, carrier appetite and how fast leads are worked.</p>
+      <p class="disclaimer">Estimates from your own inputs, not a promise of results. Real numbers vary by market, carrier appetite and how fast quote requests are worked.</p>
       <div class="ctas">
         <a class="btn amber" href="#get-checklist">Get the checklist</a>
         <a class="btn outline" href="#checklist">See the checklist</a>
@@ -199,7 +220,7 @@ footer b { font-family: var(--display); font-size: 15px; text-transform: upperca
     </aside>
   </div>
 
-  <section class="card">
+  <section class="card" id="math">
     <h2>How this estimate is calculated</h2>
     <div class="math">
       <table>
@@ -228,7 +249,7 @@ footer b { font-family: var(--display); font-size: 15px; text-transform: upperca
   <div class="lower">
     <section class="card" id="checklist">
       <h2>Quote follow-up checklist</h2>
-      <p>The habits that keep trucking quote requests from going cold. <span class="progress" id="progress"></span></p>
+      <p>The 9 habits that keep trucking quote requests from going cold. Check the ones your agency already does. <span class="progress" id="progress"></span></p>
       <ul class="checklist" id="list"></ul>
     </section>
 
@@ -238,27 +259,41 @@ footer b { font-family: var(--display); font-size: 15px; text-transform: upperca
       <form class="signup" id="signup" novalidate>
         <div class="name-row">
           <div><label for="su-name">First name</label>
-          <input type="text" id="su-name" autocomplete="given-name" required maxlength="80"></div>
+          <input type="text" id="su-name" name="firstName" autocomplete="given-name" required maxlength="80"></div>
           <div><label for="su-last">Last name</label>
-          <input type="text" id="su-last" autocomplete="family-name" required maxlength="80"></div>
+          <input type="text" id="su-last" name="lastName" autocomplete="family-name" required maxlength="80"></div>
         </div>
         <label for="su-agency">Agency name</label>
-        <input type="text" id="su-agency" autocomplete="organization" required maxlength="120">
+        <input type="text" id="su-agency" name="agency" autocomplete="organization" required maxlength="120">
         <label for="su-email">Work email</label>
-        <input type="email" id="su-email" autocomplete="email" required maxlength="200">
+        <input type="email" id="su-email" name="email" autocomplete="email" required maxlength="200">
         <label for="su-phone">Mobile phone</label>
-        <input type="tel" id="su-phone" autocomplete="tel" required maxlength="20" placeholder="(555) 555-5555">
-        <label class="consent" for="su-sms"><input type="checkbox" id="su-sms"><span>Yes, text me about my checklist request and to schedule a free review call. I agree to receive texts from Global TLM by One Loco (Warflower Productions Ltd. Co.). Msg frequency varies. Msg &amp; data rates may apply. Reply HELP for help, STOP to opt out. Consent is not a condition of purchase. <a href="https://oneloco.io/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://oneloco.io/terms-conditions/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span></label>
-        <button class="btn primary" type="submit">Send me the checklist</button>
-        <p class="msg" id="su-msg" role="status"></p>
+        <input type="tel" id="su-phone" name="phone" autocomplete="tel" inputmode="tel" required maxlength="20" placeholder="(555) 555-5555">
+        <label class="consent" for="su-sms"><input type="checkbox" id="su-sms" name="smsConsent"><span>Yes, text me about my checklist request and to schedule a free review call. I agree to receive texts from Global TLM by One Loco (Warflower Productions Ltd. Co.). Msg frequency varies. Msg &amp; data rates may apply. Reply HELP for help, STOP to opt out. Consent is not a condition of purchase. <a href="https://oneloco.io/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://oneloco.io/terms-conditions/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span></label>
+        <button class="btn primary" type="submit" id="su-btn">Send me the checklist</button>
+        <p class="msg" id="su-msg" role="status" aria-live="polite"></p>
         <p class="fine">We only use your email to send the checklist and related tips for trucking agencies. Unsubscribe anytime.</p>
       </form>
     </section>
   </div>
 
+  <section class="card forward" id="not-owner">
+    <div>
+      <h2>Not the agency owner?</h2>
+      <p>If you're a producer or CSR at someone else's agency, this is built for whoever runs it. Send them the link so they can run their own numbers.</p>
+    </div>
+    <div>
+      <div class="actions">
+        <button class="btn ghost" type="button" id="copy-link">Copy the link</button>
+        <a class="btn ghost" id="mail-link" href="mailto:?subject=Trucking%20Quote%20Leak%20Calculator&amp;body=Worth%20two%20minutes%3A%20this%20estimates%20how%20much%20commission%20we%20lose%20when%20quote%20requests%20and%20renewals%20don%27t%20get%20followed%20up.%0A%0Ahttps%3A%2F%2Ftrucking.globaltlm.com">Email it to your owner</a>
+      </div>
+      <p class="copied" id="copied" role="status"></p>
+    </div>
+  </section>
+
   <footer>
-    <b>Global TLM by One Loco</b>
-    <span>Warflower Productions Ltd. Co., doing business as One Loco. <a href="https://oneloco.io/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://oneloco.io/terms-conditions/" target="_blank" rel="noopener">Terms &amp; Conditions</a><br>Meta ads and GoHighLevel follow-up for trucking insurance agencies. This calculator gives planning estimates only. It is not financial advice and does not promise any result. Results vary by market, budget and offer.</span>
+    <span><b>Global TLM by One Loco</b> · Warflower Productions Ltd. Co., doing business as One Loco · <a href="https://oneloco.io/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> · <a href="https://oneloco.io/terms-conditions/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span>
+    <span>Meta ads and GoHighLevel follow-up for trucking insurance agencies. This calculator gives planning estimates only. It is not financial advice and does not promise any result.</span>
   </footer>
 </div>
 
@@ -332,60 +367,72 @@ for (const id of fields) {
 }
 render();
 
+// The 9 habits, worded as in the checklist itself. The second string is an optional one-line note.
 const ITEMS = [
-  ["Text every quote request within 5 minutes", "Owner-operators often request several quotes at once. The first agency to reach them has the edge."],
-  ["Ask the qualifying questions up front", "New authority or established? How many power units? Current carrier? Renewal date? Cargo and radius?"],
-  ["Have a separate path for new-authority truckers", "New DOT and MC numbers need different markets and more hand-holding. Route them to the producer who handles them."],
-  ["Return missed calls the same day", "Use missed-call text-back so a trucker on the road hears from you before they call the next agency."],
-  ["Chase every quote you send", "Follow up 2, 5 and 10 days after sending a quote. Most quotes die from silence, not price."],
-  ["Give every request a producer and a next step", "No lead sits unassigned while producers are on other calls."],
-  ["Reactivate dead quotes every quarter", "Truckers who didn't bind may be shopping again, adding units or unhappy with their carrier."],
-  ["Start renewal outreach 60 to 90 days out", "Reach clients and past quotes before their renewal date, not after another agency does."],
-  ["Track ads all the way to bound policies", "Judge lead sources on policies bound, not cost per lead."]
+  ["Text every quote request within 5 minutes.", "Owner-operators often request several quotes at once. The first agency to reach them has the edge."],
+  ["Ask the qualifying questions up front (new authority or established, power units, current carrier, renewal date, cargo/radius).", ""],
+  ["Have a separate path for new-authority truckers.", "New DOT and MC numbers need different markets and more hand-holding."],
+  ["Return missed calls the same day (missed-call text-back).", ""],
+  ["Chase every quote you send (follow up 2, 5 and 10 days after).", "Most quotes die from silence, not price."],
+  ["Give every request an owner and a next step.", "No quote request sits unassigned while producers are on other calls."],
+  ["Reactivate dead quotes every quarter.", "Truckers who didn't bind may be shopping again or adding units."],
+  ["Start renewal outreach 60–90 days out.", "Reach clients and past quotes before another agency does."],
+  ["Track ads all the way to bound policies.", "Judge lead sources on policies bound, not cost per lead."]
 ];
 const done = store.get("tql.checks", {});
 const list = $("list");
-list.innerHTML = ITEMS.map(([t, d], i) => `<li><label class="check" for="c${i}"><input type="checkbox" id="c${i}" ${done[i] ? "checked" : ""}><div><b>${t}</b><span>${d}</span></div></label></li>`).join("");
+list.innerHTML = ITEMS.map(([t, d], i) => `<li><label class="check" for="c${i}"><input type="checkbox" id="c${i}" ${done[i] ? "checked" : ""}><div><b>${t}</b>${d ? `<span>${d}</span>` : ""}</div></label></li>`).join("");
 function progress() { const n = ITEMS.filter((_, i) => done[i]).length; $("progress").textContent = `${n} of ${ITEMS.length} in place`; }
 list.addEventListener("change", e => { const i = e.target.id.slice(1); done[i] = e.target.checked; store.set("tql.checks", done); progress(); });
 progress();
 
-const dbP = window.claude?.use ? window.claude.use("db") : Promise.resolve(null);
-const form = $("signup"), msg = $("su-msg");
+// "Not the agency owner?" — copy the public link. Falls back to selecting text if the clipboard is refused.
+const SHARE_URL = "https://trucking.globaltlm.com";
+$("copy-link").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(SHARE_URL); $("copied").textContent = "Link copied. Paste it in a text or email to your agency owner."; }
+  catch { $("copied").textContent = "Copy this link: " + SHARE_URL; }
+});
+
+const form = $("signup"), msg = $("su-msg"), btn = $("su-btn");
+function fail(text, el) {
+  msg.className = "msg err"; msg.textContent = text;
+  if (el) { el.setAttribute("aria-invalid", "true"); el.focus(); }
+}
+form.addEventListener("input", e => e.target.removeAttribute("aria-invalid"));
 form.addEventListener("submit", async e => {
   e.preventDefault();
-  const email = $("su-email").value.trim();
+  if (btn.disabled) return;
   const first = $("su-name").value.trim(), last = $("su-last").value.trim(), agency = $("su-agency").value.trim();
-  const phone = $("su-phone").value.trim(), digits = phone.replace(/\D/g, "");
-  if (!first || !last || !agency) { msg.className = "msg err"; msg.textContent = "Enter your first name, last name and agency name."; return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.className = "msg err"; msg.textContent = "Enter a valid email address, like name@agency.com."; return; }
-  if (!(digits.length === 10 || (digits.length === 11 && digits[0] === "1"))) { msg.className = "msg err"; msg.textContent = "Enter a valid US mobile number, like (555) 555-5555."; return; }
-  msg.className = "msg"; msg.textContent = "Saving…";
-  const db = await dbP;
+  const email = $("su-email").value.trim();
+  let digits = $("su-phone").value.replace(/\D/g, "");
+  if (digits.length === 11 && digits[0] === "1") digits = digits.slice(1);
+  if (!first) return fail("Enter your first name.", $("su-name"));
+  if (!last) return fail("Enter your last name.", $("su-last"));
+  if (!agency) return fail("Enter your agency name.", $("su-agency"));
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("Enter a valid email address, like name@agency.com.", $("su-email"));
+  if (!/^[2-9]\d{2}[2-9]\d{6}$/.test(digits)) return fail("Enter a 10-digit US mobile number, like (555) 555-5555.", $("su-phone"));
+  const sms = $("su-sms").checked;
+  const r = calc();
+  const payload = {
+    name: first, lastName: last, agency, email, phone: "+1" + digits, smsConsent: sms,
+    estimatedMonthlyLoss: Math.round(r.monthlyComm),
+    estimatedAnnualCommissionLoss: Math.round(r.annualComm),
+    inputs: { ...vals },
+    createdAt: new Date().toISOString(), page: location.hostname
+  };
+  btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving…";
   try {
-    const r = calc();
-    const payload = {
-      name: first, lastName: last, agency, email, phone: "+1" + digits.slice(-10),
-      smsConsent: $("su-sms").checked,
-      createdAt: new Date().toISOString(), inputs: { ...vals },
-      estimatedMonthlyLoss: Math.round(r.monthlyComm),
-      estimatedAnnualCommissionLoss: Math.round(r.annualComm)
-    };
-    if (db) await db.collection("signups").doc().set(payload);
-    else {
-      // Hosted outside Claude: the site's /api/signup forwards to the HighLevel webhook.
-      const res = await fetch("/api/signup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, page: location.hostname }) });
-      if (!res.ok) throw new Error("signup failed");
-    }
-    const leadId = "gtlm-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
-    try { sessionStorage.setItem("gtlm_lead", JSON.stringify({ id: leadId, sms: $("su-sms").checked })); } catch {}
+    const res = await fetch("/api/signup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    if (!res.ok) throw new Error("signup failed");
+    const id = "gtlm-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+    try { sessionStorage.setItem("gtlm_lead", JSON.stringify({ id, sms })); } catch {}
     msg.className = "msg ok"; msg.textContent = "Done. Taking you to the next step…";
     location.href = "/thank-you/";
   } catch {
+    btn.disabled = false;
     msg.className = "msg err"; msg.textContent = "Your signup couldn't be saved. Please try again in a minute.";
   }
 });
 </script>
-
 </body>
 </html>
