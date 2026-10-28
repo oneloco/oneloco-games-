@@ -55,9 +55,14 @@ p { margin: 0; }
 .brandbar span { font: 500 12px var(--mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
 .eyebrow { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--brand); }
 
-.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px 40px; align-items: center; }
 @media (max-width: 820px) { .hero { grid-template-columns: 1fr; } }
-.hero-copy { display: grid; gap: 16px; align-content: start; padding-top: 6px; }
+.hero-copy { display: grid; gap: 18px; align-content: center; }
+.inside { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 10px; max-width: 48ch; }
+.inside b { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--brand); }
+@media (max-width: 820px) { .inside { display: none; } }
 .hero h1 { font-family: var(--display); font-weight: 800; font-size: clamp(38px, 7.5vw, 62px); line-height: .98; margin: 0; text-transform: uppercase; letter-spacing: .01em; text-wrap: balance; }
 .hero h1 em { font-style: normal; background: var(--amber); color: var(--amber-ink); padding: 0 .12em; }
 .hero .sub { color: var(--muted); font-size: 18px; max-width: 48ch; }
@@ -155,7 +160,8 @@ form.signup label { font-weight: 600; font-size: 14px; }
 form.signup input[type="text"], form.signup input[type="email"], form.signup input[type="tel"] { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; width: 100%; }
 form.signup input[aria-invalid="true"] { border-color: var(--leak); }
 form.signup .btn { width: 100%; font-size: 17px; padding: 14px 18px; }
-.msg { font-size: 14px; margin: 0; min-height: 1.4em; }
+.msg { font-size: 14px; margin: 0; }
+.msg:empty { display: none; }
 .msg.ok { color: var(--brand); }
 .msg.err { color: var(--leak); }
 .fine { font-size: 12px; color: var(--muted); margin: 0; }
@@ -171,7 +177,15 @@ form.signup .btn { width: 100%; font-size: 17px; padding: 14px 18px; }
 .forward h2 { font-family: var(--display); font-weight: 700; font-size: 24px; text-transform: uppercase; margin: 0 0 6px; }
 .forward p { color: var(--muted); max-width: 60ch; }
 .forward .actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.forward .copied { font-size: 13px; color: var(--brand); min-height: 1.3em; margin-top: 8px; }
+.forward .copied { font-size: 13px; color: var(--brand); margin-top: 8px; }
+.forward .copied:empty { display: none; }
+.share-panel { grid-column: 1 / -1; display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; }
+.share-panel label { font-weight: 600; font-size: 14px; }
+.share-panel textarea { font: inherit; font-size: 14px; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100%; min-height: 96px; resize: vertical; }
+.share-panel .actions a { font-weight: 600; }
+
+.totop { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 5; background: var(--brand); color: var(--brand-ink); border: 0; border-radius: 999px; padding: 10px 16px; font: 700 14px var(--body); cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.totop:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
 .faq { display: grid; gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
 .faq div { padding: 16px 22px; border-bottom: 1px solid var(--line); display: grid; gap: 4px; }
@@ -192,6 +206,14 @@ footer b { color: var(--fg); }
       <div class="eyebrow">For trucking insurance agency owners and independent agents</div>
       <h1>Stop losing trucking quotes to <em>whoever calls first.</em></h1>
       <p class="sub">Get the Trucking Agency Lead Machine Checklist, plus a free 20-minute review of where your quote requests leak.</p>
+      <div class="inside">
+        <b>What's in the checklist</b>
+        <ul class="ticks">
+          <li>The 9 habits that keep quote requests from going cold</li>
+          <li>When to text, call and chase every quote</li>
+          <li>Renewal outreach 60–90 days out</li>
+        </ul>
+      </div>
       <p class="for">Producer or CSR at someone else's agency? <a href="#not-owner">Pass this on to your owner.</a></p>
     </div>
 
@@ -373,9 +395,19 @@ footer b { color: var(--fg); }
     <div>
       <div class="actions">
         <button class="btn ghost" type="button" id="copy-link">Copy the link</button>
-        <a class="btn ghost" id="mail-link" href="mailto:?subject=Trucking%20Quote%20Leak%20Calculator&amp;body=Worth%20two%20minutes%3A%20this%20estimates%20how%20much%20commission%20we%20lose%20when%20quote%20requests%20and%20renewals%20don%27t%20get%20followed%20up.%0A%0Ahttps%3A%2F%2Ftrucking.globaltlm.com">Email it to your owner</a>
+        <button class="btn ghost" type="button" id="share-btn" aria-expanded="false" aria-controls="share-panel">Send it to your owner</button>
       </div>
       <p class="copied" id="copied" role="status"></p>
+    </div>
+    <div class="share-panel" id="share-panel" hidden>
+      <label for="share-msg">Message to send (edit it if you like)</label>
+      <textarea id="share-msg"></textarea>
+      <div class="actions">
+        <button class="btn primary" type="button" id="copy-msg">Copy the message</button>
+        <a class="btn ghost" id="gmail-link" target="_blank" rel="noopener" href="#">Open in Gmail</a>
+        <a class="btn ghost" id="outlook-link" target="_blank" rel="noopener" href="#">Open in Outlook</a>
+      </div>
+      <p class="fine">Or paste the message into a text to your agency owner.</p>
     </div>
   </section>
 
@@ -394,6 +426,7 @@ footer b { color: var(--fg); }
     <span>Meta ads and GoHighLevel follow-up for trucking insurance agencies. The calculator gives planning estimates only. It is not financial advice and does not promise any result.</span>
   </footer>
 </div>
+<button class="totop" type="button" id="totop" hidden>↑ Back to top</button>
 
 <script>
 const EXAMPLE = { inq: 40, miss: 30, close: 25, sale: 12000, comm: 15, ren: 15, rlost: 10 };
@@ -467,16 +500,52 @@ for (const id of fields) {
 }
 render();
 
-// "Not the agency owner?" — copy the public link. Falls back to showing it if the clipboard is refused.
+// "Not the agency owner?" — copy the link, or share a ready-made message. mailto: links do nothing for
+// people who use Gmail or Outlook in the browser, so this uses the phone's share sheet when there is one,
+// and otherwise shows the message with copy, Gmail and Outlook options.
 const SHARE_URL = "https://trucking.globaltlm.com";
-$("copy-link").addEventListener("click", async () => {
-  try { await navigator.clipboard.writeText(SHARE_URL); $("copied").textContent = "Link copied. Paste it in a text or email to your agency owner."; }
-  catch { $("copied").textContent = "Copy this link: " + SHARE_URL; }
+const SHARE_SUBJECT = "Worth 2 minutes: where our trucking quotes leak";
+const SHARE_TEXT = "This is a free checklist for trucking insurance agencies on following up quote requests and renewals faster, plus a free 20-minute review. Thought it was worth a look:";
+const shareBody = SHARE_TEXT + "\n\n" + SHARE_URL;
+async function copyText(text, okMsg, failMsg) {
+  try { await navigator.clipboard.writeText(text); $("copied").textContent = okMsg; return true; }
+  catch { $("copied").textContent = failMsg; return false; }
+}
+$("copy-link").addEventListener("click", () => copyText(SHARE_URL, "Link copied. Paste it in a text or email to your agency owner.", "Copy this link: " + SHARE_URL));
+$("share-msg").value = shareBody;
+$("share-btn").addEventListener("click", async () => {
+  const touch = window.matchMedia("(pointer: coarse)").matches;
+  if (touch && navigator.share) {
+    try { await navigator.share({ title: SHARE_SUBJECT, text: SHARE_TEXT, url: SHARE_URL }); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  const panel = $("share-panel"), open = panel.hidden;
+  panel.hidden = !open;
+  $("share-btn").setAttribute("aria-expanded", String(open));
+  if (open) $("share-msg").focus();
+});
+// Keep the Gmail and Outlook links in step with any edits to the message.
+function syncShareLinks() {
+  const body = $("share-msg").value;
+  $("gmail-link").href = "https://mail.google.com/mail/?view=cm&fs=1&su=" + encodeURIComponent(SHARE_SUBJECT) + "&body=" + encodeURIComponent(body);
+  $("outlook-link").href = "https://outlook.office.com/mail/deeplink/compose?subject=" + encodeURIComponent(SHARE_SUBJECT) + "&body=" + encodeURIComponent(body);
+}
+$("share-msg").addEventListener("input", syncShareLinks);
+syncShareLinks();
+$("copy-msg").addEventListener("click", async () => {
+  const ok = await copyText($("share-msg").value,"Message copied. Paste it into an email or text to your agency owner.", "Select the message above and copy it.");
+  if (!ok) $("share-msg").select();
 });
 
-// Buttons that point at the form also put the cursor in the first field.
+// Back to top: shows once the visitor has scrolled past the hero.
+const toTop = $("totop");
+const heroEl = document.querySelector(".hero");
+window.addEventListener("scroll", () => { toTop.hidden = window.scrollY < heroEl.offsetTop + heroEl.offsetHeight; }, { passive: true });
+toTop.addEventListener("click", () => { window.scrollTo({ top: 0 }); history.replaceState(null, "", location.pathname + location.search); });
+
+// Buttons that point at the form also put the cursor in the first field once the scroll finishes.
 for (const a of document.querySelectorAll('a[href="#get-checklist"]')) {
-  a.addEventListener("click", () => setTimeout(() => $("su-name").focus({ preventScroll: true }), 400));
+  a.addEventListener("click", () => setTimeout(() => $("su-name").focus({ preventScroll: true }), 600));
 }
 
 const form = $("signup"), msg = $("su-msg"), btn = $("su-btn");
