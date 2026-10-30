@@ -560,7 +560,35 @@ for (const a of document.querySelectorAll('a[href="#get-checklist"]')) {
   a.addEventListener("click", () => setTimeout(() => $("su-name").focus({ preventScroll: true }), 600));
 }
 
+// First-touch ad attribution. Meta ads add utm_* + platform to the link and fbclid on its own.
+// The first paid visit wins: a later visit without those params never overwrites it. A visit with no
+// params is kept only until a paid visit arrives, so landing page, referrer and first_seen still show up.
+const ATTR_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "platform", "fbclid"];
+const ATTR_FIELDS = [...ATTR_KEYS, "landing_page", "referrer", "first_seen"];
+const ATTR_STORE = "gtlm_attribution";
+const attribution = (() => {
+  const params = new URLSearchParams(location.search); // decodes %7C, %2C, %20 and "+"
+  const fromUrl = {};
+  for (const k of ATTR_KEYS) { const v = (params.get(k) || "").trim(); if (v) fromUrl[k] = v.slice(0, 200); }
+  const hasParams = Object.keys(fromUrl).length > 0;
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(ATTR_STORE) || "null"); } catch {}
+  const savedIsPaid = saved && typeof saved === "object" && ATTR_KEYS.some(k => saved[k]);
+  if (savedIsPaid || (saved && typeof saved === "object" && !hasParams)) return saved;
+  const touch = { ...fromUrl, landing_page: location.href.slice(0, 500), referrer: document.referrer.slice(0, 500), first_seen: new Date().toISOString() };
+  try { localStorage.setItem(ATTR_STORE, JSON.stringify(touch)); } catch {}
+  return touch;
+})();
+// Flat string values for the payload: missing values are "", never "undefined" or "null".
+const attributionFields = () => Object.fromEntries(ATTR_FIELDS.map(k => [k, attribution[k] == null ? "" : String(attribution[k])]));
+
 const form = $("signup"), msg = $("su-msg"), btn = $("su-btn");
+// Hidden copies of the attribution, so a plain form post would carry them too.
+for (const [k, v] of Object.entries(attributionFields())) {
+  const input = document.createElement("input");
+  input.type = "hidden"; input.name = k; input.value = v;
+  form.appendChild(input);
+}
 function fail(text, el) {
   msg.className = "msg err"; msg.textContent = text;
   if (el) { el.setAttribute("aria-invalid", "true"); el.focus(); }
@@ -585,7 +613,8 @@ form.addEventListener("submit", async e => {
     estimatedMonthlyLoss: Math.round(r.monthlyComm),
     estimatedAnnualCommissionLoss: Math.round(r.annualComm),
     inputs: { ...vals },
-    createdAt: new Date().toISOString(), page: location.hostname
+    createdAt: new Date().toISOString(), page: location.hostname,
+    ...attributionFields()
   };
   btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving…";
   try {
