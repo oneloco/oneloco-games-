@@ -569,7 +569,8 @@ const ATTR_STORE = "gtlm_attribution";
 const attribution = (() => {
   const params = new URLSearchParams(location.search); // decodes %7C, %2C, %20 and "+"
   const fromUrl = {};
-  for (const k of ATTR_KEYS) { const v = (params.get(k) || "").trim(); if (v) fromUrl[k] = v.slice(0, 200); }
+  // When a key repeats, the last value wins: Meta appends its ad params after any tags already in a boosted post's link.
+  for (const k of ATTR_KEYS) { const v = (params.getAll(k).pop() || "").trim(); if (v) fromUrl[k] = v.slice(0, 200); }
   const hasParams = Object.keys(fromUrl).length > 0;
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(ATTR_STORE) || "null"); } catch {}
