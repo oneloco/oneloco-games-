@@ -34,6 +34,8 @@ async function ghl(req) {
   }
 }
 
+const ATTRIBUTION_FIELDS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "platform", "fbclid", "landing_page", "referrer", "first_seen"];
+
 async function signup(req, env) {
   const [body, err] = await readJson(req);
   if (err) return err;
@@ -50,6 +52,8 @@ async function signup(req, env) {
     inputs: body.inputs && typeof body.inputs === "object" ? body.inputs : undefined,
     submitted_at: new Date().toISOString()
   };
+  // Ad attribution from the landing page (first-touch UTM + fbclid), passed through flat as strings.
+  for (const k of ATTRIBUTION_FIELDS) payload[k] = String(body[k] ?? "").slice(0, 500);
   const res = await fetch(env.SIGNUP_WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
   return res.ok ? json({ ok: true }) : json({ error: "Signup couldn't be saved." }, 502);
 }
