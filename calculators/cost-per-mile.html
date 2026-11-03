@@ -12,137 +12,193 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: grouped cost inputs on the left, sticky result panel on the right with a stacked cents-per-mile bar. Highway-sign type, DOT amber on asphalt blue. */
+/* Layout: period switch, then fixed / variable / miles inputs in two columns, sticky results panel; explainer and FAQ below. Highway-sign type, DOT amber on asphalt blue. */
 :root {
   --bg: #eef1f5; --surface: #ffffff; --line: #d3d9e2; --fg: #111a27; --muted: #566274;
-  --brand: #1b3a63; --brand-ink: #ffffff; --amber: #f2a900; --amber-ink: #1c1400; --good: #17804a; --leak: #b42318;
-  --panel: #13233b; --panel-fg: #f3f6fa; --panel-muted: #a9b6c8;
-  --c1: #f2a900; --c2: #6ea8ff; --c3: #ff8a65; --c4: #7fd1ae; --c5: #c3a6ff; --c6: #9fb3c8; --c7: #ffd36e;
+  --brand: #1b3a63; --brand-ink: #ffffff; --amber: #f2a900; --amber-ink: #1c1400;
+  --panel: #13233b; --panel-fg: #f3f6fa; --panel-muted: #a9b6c8; --pos: #5fd39a; --neg: #ff8b80;
+  --c-fixed: #6ea8ff; --c-var: #f2a900; --c-ins: #ff8a65;
   --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
   --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
-  --brand: #7fa7dc; --brand-ink: #0b1626; --good: #5fd39a; --leak: #ff7b6e; --panel: #1a2a43; color-scheme: dark; } }
+  --brand: #7fa7dc; --brand-ink: #0b1626; --panel: #1a2a43; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
-  --brand: #7fa7dc; --brand-ink: #0b1626; --good: #5fd39a; --leak: #ff7b6e; --panel: #1a2a43; color-scheme: dark; }
+  --brand: #7fa7dc; --brand-ink: #0b1626; --panel: #1a2a43; color-scheme: dark; }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
-.wrap { max-width: 1100px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; gap: 24px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; gap: 22px; }
 .eyebrow { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--brand); margin-bottom: 10px; }
 h1 { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 7vw, 56px); line-height: 1; margin: 0; text-transform: uppercase; text-wrap: balance; }
 h1 em { font-style: normal; background: var(--amber); color: var(--amber-ink); padding: 0 .15em; }
 header p { color: var(--muted); margin: 12px 0 0; max-width: 64ch; }
-h2 { font-family: var(--display); font-weight: 700; font-size: 26px; margin: 0; text-transform: uppercase; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 24px; margin: 0; text-transform: uppercase; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.fine { font-size: 13px; color: var(--muted); margin: 0; }
 
-.main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
-@media (max-width: 840px) { .main { grid-template-columns: 1fr; } }
-.groups { display: grid; gap: 16px; }
-fieldset { margin: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 16px; display: grid; gap: 4px; min-width: 0; }
-legend { font-family: var(--display); font-weight: 700; font-size: 20px; text-transform: uppercase; padding: 0 6px; }
-.gnote { color: var(--muted); font-size: 13px; margin: 0 0 6px; }
-.row { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
-.row:last-child { border-bottom: 0; }
-.row label { font-weight: 600; font-size: 15px; }
-.row label small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
-.num { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 0 10px; min-width: 0; }
+.period { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; }
+.seg { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.seg button { font: 700 15px var(--body); padding: 8px 18px; border-radius: 7px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.seg button[aria-checked="true"] { background: var(--brand); color: var(--brand-ink); }
+.tools { display: flex; gap: 8px; flex-wrap: wrap; }
+.link { font: 600 14px var(--body); background: none; border: 0; color: var(--brand); cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 880px) { .main { grid-template-columns: 1fr; } }
+.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 620px) { .cols { grid-template-columns: 1fr; } }
+.group { display: grid; gap: 2px; align-content: start; min-width: 0; }
+.ghead { font-family: var(--display); font-weight: 700; font-size: 19px; text-transform: uppercase; margin: 0 0 4px; display: flex; gap: 8px; align-items: baseline; }
+.ghead span { font: 500 11px var(--mono); color: var(--muted); letter-spacing: .06em; }
+.f { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.f label { font-weight: 600; font-size: 15px; line-height: 1.3; }
+.f label small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.num { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 0 9px; min-width: 0; }
 .num span { color: var(--muted); font-family: var(--mono); font-size: 13px; white-space: nowrap; }
 .num input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--fg); font: 500 16px var(--mono); padding: 8px 4px; font-variant-numeric: tabular-nums; text-align: right; }
+.num input::placeholder { color: var(--muted); opacity: .6; }
 .num input:focus { outline: none; }
 .num:focus-within { outline: 2px solid var(--brand); outline-offset: 1px; }
-.derived { font: 12px var(--mono); color: var(--muted); margin: 6px 0 0; }
-@media (max-width: 420px) { .row { grid-template-columns: minmax(0, 1fr) 128px; } }
+.seg button:focus-visible, .link:focus-visible, .btn:focus-visible, summary:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
-.result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--panel); color: var(--panel-fg); border-radius: 14px; padding: 22px; display: grid; gap: 16px; border-top: 6px solid var(--amber); }
+.result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--panel); color: var(--panel-fg); border-radius: 14px; padding: 22px; display: grid; gap: 14px; border-top: 6px solid var(--amber); }
 .tag { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--amber); }
-.big { font-family: var(--display); font-weight: 800; font-size: clamp(52px, 11vw, 76px); line-height: .9; font-variant-numeric: tabular-nums; }
-.big small { font-size: .32em; font-weight: 600; color: var(--panel-muted); text-transform: uppercase; }
-.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; border-top: 1px solid rgba(255,255,255,.14); padding-top: 14px; }
-.kpi { display: grid; gap: 2px; min-width: 0; }
-.kpi b { font: 500 20px var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.kpi span { font-size: 12px; color: var(--panel-muted); }
-.kpi .pos { color: #5fd39a; }
-.kpi .neg { color: #ff8b80; }
-.stack { display: flex; height: 22px; border-radius: 5px; overflow: hidden; background: rgba(255,255,255,.08); }
+.big { font-family: var(--display); font-weight: 800; font-size: clamp(54px, 11vw, 78px); line-height: .9; font-variant-numeric: tabular-nums; }
+.big small { font-size: .3em; font-weight: 600; color: var(--panel-muted); text-transform: uppercase; }
+.empty { margin: 0; color: var(--panel-muted); font-size: 14px; }
+.stack { display: flex; height: 14px; border-radius: 4px; overflow: hidden; background: rgba(255,255,255,.08); }
 .stack div { height: 100%; }
-.legend { display: grid; gap: 6px; }
-.lg { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; font-size: 14px; }
-.lg i { width: 12px; height: 12px; border-radius: 3px; display: block; }
-.lg span { color: var(--panel-fg); }
-.lg b { font: 500 14px var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
-.lg em { font: normal 12px var(--mono); color: var(--panel-muted); min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
-.lg.ins span { color: var(--amber); font-weight: 600; }
-.callout { background: rgba(242,169,0,.12); border: 1px solid rgba(242,169,0,.45); border-radius: 10px; padding: 12px 14px; font-size: 14px; display: grid; gap: 10px; }
-.callout p { margin: 0; color: var(--panel-fg); }
-.btn { display: inline-flex; align-items: center; justify-content: center; font: 700 15px var(--body); border-radius: 8px; padding: 11px 16px; cursor: pointer; text-decoration: none; border: 2px solid transparent; background: var(--amber); color: var(--amber-ink); justify-self: start; }
-.btn:focus-visible { outline: 2px solid var(--panel-fg); outline-offset: 2px; }
-.result > p { margin: 0; font-size: 12px; color: var(--panel-muted); }
+.key { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--panel-muted); }
+.key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.metrics { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid rgba(255,255,255,.14); }
+.metrics li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 14px; }
+.metrics li span { color: var(--panel-muted); }
+.metrics li span small { display: block; font-size: 11px; }
+.metrics li b { font: 500 17px var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+.metrics li.key-row b { color: var(--amber); }
+.pos { color: var(--pos); }
+.neg { color: var(--neg); }
+.callout { background: rgba(242,169,0,.12); border: 1px solid rgba(242,169,0,.45); border-radius: 10px; padding: 12px 14px; display: grid; gap: 10px; font-size: 14px; }
+.callout p { margin: 0; }
+.btn { display: inline-flex; align-items: center; justify-content: center; font: 700 15px var(--body); border-radius: 8px; padding: 11px 16px; cursor: pointer; text-decoration: none; background: var(--amber); color: var(--amber-ink); justify-self: start; }
+.result > .note { margin: 0; font-size: 12px; color: var(--panel-muted); }
 
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 12px; min-width: 0; }
-.card ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); font-size: 14px; max-width: 76ch; }
-.math { overflow-x: auto; }
-.math table { border-collapse: collapse; width: 100%; min-width: 460px; font-variant-numeric: tabular-nums; }
-.math td { padding: 9px 8px; border-bottom: 1px solid var(--line); }
-.math td:first-child { color: var(--muted); font-size: 14px; width: 40%; }
-.math td.f { font: 13px var(--mono); color: var(--muted); }
-.math td.v { font: 500 15px var(--mono); text-align: right; white-space: nowrap; }
-.math tr.total td { font-weight: 700; }
+details.fold { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+details.fold > summary { list-style: none; cursor: pointer; padding: 16px 18px; display: grid; gap: 2px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary b { font-family: var(--display); font-size: 22px; text-transform: uppercase; }
+details.fold > summary span { color: var(--muted); font-size: 14px; }
+details.fold > summary b::after { content: " +"; color: var(--muted); }
+details.fold[open] > summary b::after { content: " −"; }
+.fold-body { padding: 0 18px 18px; display: grid; gap: 12px; max-width: 78ch; }
+.fold-body p { margin: 0; }
+pre.formula { margin: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font: 13px/1.7 var(--mono); overflow-x: auto; }
+.kinds { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.kinds div { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 4px; }
+.kinds b { font-weight: 700; }
+.kinds span { font-size: 14px; color: var(--muted); }
+.faq details { border-bottom: 1px solid var(--line); padding: 10px 0; }
+.faq summary { cursor: pointer; font-weight: 600; }
+.faq p { margin: 8px 0 0; color: var(--muted); }
 footer { color: var(--muted); font-size: 12px; max-width: 80ch; }
 </style>
 
 <div class="wrap">
   <header>
     <div class="eyebrow">For owner-operators and small fleets</div>
-    <h1>What does every mile <em>really</em> cost you?</h1>
-    <p>Add up your truck, insurance, fuel and everything else to get your true cost per mile, the rate you need just to break even, and what you actually keep.</p>
+    <h1>What does every mile <em>really</em> cost?</h1>
+    <p>Pick a week, a month or a year, then enter what the truck cost you and how far it ran. You'll see your cost per mile, what you keep from each load and the lowest rate worth taking.</p>
   </header>
 
+  <section class="card period" aria-label="Time period">
+    <div>
+      <h2 id="p-h">Your numbers are for one</h2>
+    </div>
+    <div class="seg" role="radiogroup" aria-labelledby="p-h" id="seg">
+      <button type="button" role="radio" data-p="week" aria-checked="true">Week</button>
+      <button type="button" role="radio" data-p="month" aria-checked="false">Month</button>
+      <button type="button" role="radio" data-p="year" aria-checked="false">Year</button>
+    </div>
+    <div class="tools">
+      <button class="link" type="button" id="clear">Clear all</button>
+      <button class="link" type="button" id="example">Load example</button>
+    </div>
+    <p class="fine" style="flex-basis:100%">Use the same period for every box. Switching periods converts the numbers already entered.</p>
+  </section>
+
   <div class="main">
-    <div class="groups" id="groups"></div>
+    <section class="card" aria-label="Costs and miles">
+      <div class="cols">
+        <div class="group" id="g-fixed"></div>
+        <div class="group" id="g-var"></div>
+      </div>
+      <div class="group" id="g-miles"></div>
+      <p class="fine">Everything stays on this device. Nothing you enter is sent anywhere.</p>
+    </section>
 
     <aside class="result" aria-live="polite">
-      <div class="tag">Your cost per mile</div>
+      <div class="tag">Cost per mile <span id="per-tag">· weekly numbers</span></div>
       <div class="big" id="cpm">$0.00 <small>/ mile</small></div>
-      <div class="kpis">
-        <div class="kpi"><b id="be">$0.00</b><span>Break-even rate per loaded mile</span></div>
-        <div class="kpi"><b id="ppm">$0.00</b><span>Profit per mile driven</span></div>
-        <div class="kpi"><b id="pmo">$0</b><span>Profit per month</span></div>
-        <div class="kpi"><b id="pyr">$0</b><span>Profit per year</span></div>
-      </div>
-      <div>
+      <p class="empty" id="empty">Enter your miles and at least one cost to see your numbers.</p>
+      <div id="mix" hidden>
         <div class="stack" id="stack" aria-hidden="true"></div>
+        <div class="key" id="key"></div>
       </div>
-      <div class="legend" id="legend"></div>
-      <div class="callout">
+      <ul class="metrics">
+        <li><span>Fixed costs</span><b id="r-fixed">$0</b></li>
+        <li><span>Variable costs</span><b id="r-var">$0</b></li>
+        <li><span>Total cost</span><b id="r-total">$0</b></li>
+        <li><span>Rate per loaded mile</span><b id="r-rpm">—</b></li>
+        <li><span>Earned per mile driven<small>Rate after empty miles</small></span><b id="r-epm">—</b></li>
+        <li><span>Profit per mile</span><b id="r-ppm">—</b></li>
+        <li><span id="r-profit-l">Profit this week</span><b id="r-profit">—</b></li>
+        <li><span>Profit margin</span><b id="r-margin">—</b></li>
+        <li class="key-row"><span>Break-even rate<small>Lowest rate per loaded mile that covers every cost</small></span><b id="r-be">—</b></li>
+      </ul>
+      <div class="callout" id="ins-box" hidden>
         <p id="ins-line"></p>
-        <a class="btn" id="cta" href="#about">Get your insurance reviewed</a>
-        <p id="cta-note" hidden>Online booking is being set up. Ask your agent to compare your current coverage and premium.</p>
+        <a class="btn" id="cta" href="#faq">Have your insurance reviewed</a>
+        <p id="cta-note" hidden>Online booking is being set up. Ask your insurance agent to look at your coverage, limits and payment plan.</p>
       </div>
-      <p>Estimates from the numbers you entered. Your real costs change with lanes, fuel prices, equipment and season.</p>
+      <p class="note">For planning only. This isn't an insurance quote, and your real costs depend on your truck, lanes and season.</p>
     </aside>
   </div>
 
-  <section class="card" id="about">
-    <h2>How it's calculated</h2>
-    <div class="math"><table><tbody>
-      <tr><td>Fixed costs per month</td><td class="f">truck, trailer, insurance, permits, office, tolls</td><td class="v" id="m-fixed"></td></tr>
-      <tr><td>Per-mile costs</td><td class="f" id="m-varf"></td><td class="v" id="m-var"></td></tr>
-      <tr><td>Total cost per month</td><td class="f" id="m-totf"></td><td class="v" id="m-tot"></td></tr>
-      <tr class="total"><td>Cost per mile</td><td class="f" id="m-cpmf"></td><td class="v" id="m-cpm"></td></tr>
-      <tr><td>Revenue per month</td><td class="f" id="m-revf"></td><td class="v" id="m-rev"></td></tr>
-      <tr class="total"><td>Break-even rate</td><td class="f" id="m-bef"></td><td class="v" id="m-be"></td></tr>
-    </tbody></table></div>
-    <ul>
-      <li>Cost per mile uses every mile you drive, loaded or empty. Break-even rate uses loaded miles only, because empty miles don't pay.</li>
-      <li>Annual costs like IRP, IFTA, UCR, the heavy vehicle use tax (Form 2290) and permits are spread across 12 months.</li>
-      <li>Leave driver pay at 0 if you drive your own truck. Your take-home is the profit line.</li>
-      <li>Example numbers are filled in. Replace them with your own from your settlements, fuel card and insurance policy.</li>
-    </ul>
-  </section>
+  <details class="fold">
+    <summary><b>How the math works</b><span>The formulas, the three kinds of cost, and a worked example</span></summary>
+    <div class="fold-body">
+      <p>Take everything the truck cost over a period and divide it by every mile it ran in that same period. Then compare that to what loads actually pay.</p>
+      <pre class="formula">Cost per mile      = total cost ÷ all miles driven
+Earned per mile    = rate per loaded mile × (1 − empty mile share)
+Profit per mile    = earned per mile − cost per mile
+Break-even rate    = cost per mile ÷ (1 − empty mile share)</pre>
+      <div class="kinds">
+        <div><b>Fixed costs</b><span>Insurance, truck and trailer notes, permits, IFTA and IRP, ELD and dispatch. You pay them whether the wheels turn or not, so more miles make each mile cheaper.</span></div>
+        <div><b>Variable costs</b><span>Fuel, repairs, tires, tolls, driver pay, factoring. They rise with every mile you run, so running more doesn't bring them down per mile.</span></div>
+        <div><b>Empty miles</b><span>Deadhead burns the same fuel and tires as a loaded mile, but nobody pays for it. It quietly lowers what you earn per mile driven.</span></div>
+      </div>
+      <p><b>Worked example (made-up numbers):</b> a month of 10,000 miles costs $16,500, so the truck costs $1.65 a mile. With 15% of miles empty, a $2.10 load rate earns about $1.79 for every mile driven, which leaves 14 cents a mile, or roughly $1,350 for the month. Below $1.94 per loaded mile, the truck loses money.</p>
+    </div>
+  </details>
 
-  <footer>Built by One Loco for trucking insurance agencies. This calculator gives planning estimates only. It is not financial, tax or insurance advice, and it doesn't quote or promise any premium.</footer>
+  <details class="fold" id="faq">
+    <summary><b>Common questions</b><span>8 quick answers</span></summary>
+    <div class="fold-body faq">
+      <details><summary>What is cost per mile?</summary><p>It's your total operating cost for a period divided by all the miles the truck ran in that period. It tells you what a mile costs before you look at what a load pays.</p></details>
+      <details><summary>How is CPM different from RPM?</summary><p>RPM is the rate a load pays per mile. CPM is what the truck costs you per mile. The gap between them is your profit, and a load with a strong RPM can still lose money if you don't know your CPM.</p></details>
+      <details><summary>Do empty miles count?</summary><p>Yes. They cost fuel, tires and time like any other mile, so they're included in cost per mile. Rate is entered per loaded mile, and the calculator adjusts for the share of miles you run empty.</p></details>
+      <details><summary>Should I put my own pay in driver pay?</summary><p>No, if you drive your own truck. Leave it out, and the profit line is what's left for you. Put in driver pay only for drivers you pay.</p></details>
+      <details><summary>Week, month or year?</summary><p>Use whichever matches your records. Weekly settlements, monthly statements and yearly tax numbers all give the same cost per mile, as long as every box uses the same period.</p></details>
+      <details><summary>Where does insurance fit in?</summary><p>Insurance is a fixed cost. Your premium doesn't change with how far you drive in a given week, so more miles spread it thinner. Coverage, limits, deductibles and how you pay all change what it costs you per mile.</p></details>
+      <details><summary>What does the break-even rate mean?</summary><p>It's the lowest rate per loaded mile that covers all the costs you entered, after accounting for empty miles. Loads below it keep the truck busy but cost you money.</p></details>
+      <details><summary>Does this save what I type?</summary><p>No. The math runs in your browser, and nothing is stored on a server or sent to anyone.</p></details>
+    </div>
+  </details>
+
+  <footer>Built by One Loco for trucking insurance agencies. Planning estimates only. Not financial, tax or insurance advice, and not a quote.</footer>
 </div>
 
 <script>
@@ -152,126 +208,111 @@ const BOOKING_URL = "";
 const $ = id => document.getElementById(id);
 const money = (n, d = 0) => Number.isFinite(n) ? (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) : "—";
 const cents = n => Number.isFinite(n) ? (n * 100).toFixed(1) + "¢" : "—";
-const store = {
-  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
-};
 
-// per: "mo" monthly $, "yr" yearly $, "mi" $ per mile, "pct" percent, raw numbers otherwise
-const GROUPS = [
-  { name: "Miles and rate", fields: [
-    { id: "miles", label: "Miles driven per month", note: "All miles, loaded and empty", unit: "mi", step: 100 },
-    { id: "deadhead", label: "Deadhead (empty) miles", note: "Share of miles with no paying load", unit: "%", step: 1 },
-    { id: "rate", label: "Average rate per loaded mile", note: "Linehaul plus fuel surcharge", pre: "$", step: 0.01 },
-    { id: "factor", label: "Factoring or dispatch fee", note: "Share of revenue, 0 if none", unit: "%", step: 0.5 }
-  ]},
-  { name: "Truck and trailer", fields: [
-    { id: "truck", label: "Truck payment or lease", unit: "/mo", pre: "$", step: 25, cat: "equip" },
-    { id: "trailer", label: "Trailer payment or rental", unit: "/mo", pre: "$", step: 25, cat: "equip" }
-  ]},
-  { name: "Insurance", note: "Use the monthly amount from your policy or payment plan.", fields: [
-    { id: "liab", label: "Primary auto liability", unit: "/mo", pre: "$", step: 10, cat: "ins" },
-    { id: "cargo", label: "Motor truck cargo", unit: "/mo", pre: "$", step: 10, cat: "ins" },
-    { id: "pd", label: "Physical damage", unit: "/mo", pre: "$", step: 10, cat: "ins" },
-    { id: "otherins", label: "Other coverage", note: "Non-trucking liability, occupational accident, trailer interchange", unit: "/mo", pre: "$", step: 10, cat: "ins" }
-  ]},
-  { name: "Fuel", fields: [
-    { id: "fuel", label: "Diesel price", unit: "/gal", pre: "$", step: 0.01, cat: "fuel" },
-    { id: "mpg", label: "Fuel economy", unit: "mpg", step: 0.1 },
-    { id: "def", label: "DEF", note: "Diesel exhaust fluid", unit: "/mi", pre: "$", step: 0.005, cat: "fuel" }
-  ]},
-  { name: "Maintenance and tires", fields: [
-    { id: "maint", label: "Repairs and maintenance", note: "Set aside per mile", unit: "/mi", pre: "$", step: 0.01, cat: "maint" },
-    { id: "tires", label: "Tires", unit: "/mi", pre: "$", step: 0.005, cat: "maint" }
-  ]},
-  { name: "Driver", fields: [
-    { id: "driver", label: "Driver pay", note: "0 if you drive your own truck", unit: "/mi", pre: "$", step: 0.01, cat: "driver" }
-  ]},
-  { name: "Permits, office and other", fields: [
-    { id: "permits", label: "Permits, plates and taxes", note: "IRP, IFTA, UCR, 2290 and state permits for the year", unit: "/yr", pre: "$", step: 50, cat: "admin" },
-    { id: "eld", label: "ELD, load boards and software", unit: "/mo", pre: "$", step: 5, cat: "admin" },
-    { id: "office", label: "Phone, accounting and office", unit: "/mo", pre: "$", step: 10, cat: "admin" },
-    { id: "parking", label: "Parking and truck washes", unit: "/mo", pre: "$", step: 10, cat: "admin" },
-    { id: "tolls", label: "Tolls and scales", unit: "/mo", pre: "$", step: 10, cat: "tolls" }
-  ]}
+const FIXED = [
+  { id: "ins", label: "Insurance", note: "Every policy for the period" },
+  { id: "equip", label: "Truck and trailer payments" },
+  { id: "permits", label: "Permits, plates, IFTA and IRP" },
+  { id: "eld", label: "ELD, dispatch and software" },
+  { id: "ofixed", label: "Other fixed costs", note: "Parking, phone, bookkeeping" }
 ];
-const DEF = { miles: 10000, deadhead: 12, rate: 2.35, factor: 0, truck: 2400, trailer: 650, liab: 1050, cargo: 140, pd: 380, otherins: 120,
-  fuel: 3.85, mpg: 6.8, def: 0.015, maint: 0.17, tires: 0.04, driver: 0, permits: 3200, eld: 120, office: 180, parking: 150, tolls: 160 };
-const V = Object.assign({}, DEF, store.get("cpmi.v", {}));
-const CATS = [
-  { id: "fuel", name: "Fuel and DEF", color: "var(--c1)" },
-  { id: "equip", name: "Truck and trailer", color: "var(--c2)" },
-  { id: "ins", name: "Insurance", color: "var(--c3)" },
-  { id: "maint", name: "Maintenance and tires", color: "var(--c4)" },
-  { id: "driver", name: "Driver pay", color: "var(--c5)" },
-  { id: "admin", name: "Permits, office and other", color: "var(--c6)" },
-  { id: "tolls", name: "Tolls and scales", color: "var(--c7)" }
+const VAR = [
+  { id: "fuel", label: "Fuel" },
+  { id: "maint", label: "Repairs and maintenance" },
+  { id: "tires", label: "Tires" },
+  { id: "tolls", label: "Tolls and scales" },
+  { id: "driver", label: "Driver pay", note: "Skip your own pay if you drive" },
+  { id: "ovar", label: "Other variable costs", note: "Factoring, lumpers, washes" }
 ];
+const MILES = [
+  { id: "miles", label: "Miles driven", note: "Loaded and empty", unit: "mi" },
+  { id: "rate", label: "Rate per loaded mile", note: "Optional, for profit", pre: "$", unit: "/mi", noScale: true, ph: "0.00" },
+  { id: "dh", label: "Empty (deadhead) miles", note: "Optional, share of all miles", unit: "%", noScale: true }
+];
+const ALL = [...FIXED, ...VAR, ...MILES];
+const PER = { week: 52, month: 12, year: 1 };
+const LABEL = { week: "week", month: "month", year: "year" };
+// Weekly example for one owner-operator truck (made-up numbers).
+const EXAMPLE = { ins: 380, equip: 720, permits: 70, eld: 45, ofixed: 85, fuel: 1300, maint: 330, tires: 80, tolls: 40, driver: 0, ovar: 0, miles: 2400, rate: 2.15, dh: 12 };
 
-$("groups").innerHTML = GROUPS.map(g => `<fieldset><legend>${g.name}</legend>${g.note ? `<p class="gnote">${g.note}</p>` : ""}
-  ${g.fields.map(f => `<div class="row"><label for="${f.id}">${f.label}${f.note ? `<small>${f.note}</small>` : ""}</label>
-    <div class="num">${f.pre ? `<span>${f.pre}</span>` : ""}<input id="${f.id}" type="number" inputmode="decimal" min="0" step="${f.step}" value="${V[f.id]}">${f.unit ? `<span>${f.unit}</span>` : ""}</div></div>`).join("")}
-  ${g.name === "Fuel" ? `<p class="derived" id="fuel-derived"></p>` : ""}${g.name === "Insurance" ? `<p class="derived" id="ins-derived"></p>` : ""}</fieldset>`).join("");
-
-for (const g of GROUPS) for (const f of g.fields) {
-  $(f.id).addEventListener("input", e => {
-    let v = parseFloat(e.target.value); v = Number.isFinite(v) ? Math.max(0, v) : 0;
-    if (f.unit === "%") v = Math.min(f.id === "deadhead" ? 95 : 100, v);
-    V[f.id] = v; store.set("cpmi.v", V); render();
-  });
-  $(f.id).addEventListener("blur", e => { e.target.value = V[f.id]; });
+let period = "week";
+const V = {};
+const field = (f, pre = "$") => `<div class="f"><label for="${f.id}">${f.label}${f.note ? `<small>${f.note}</small>` : ""}</label>
+  <div class="num">${(f.pre ?? (f.unit ? "" : pre)) ? `<span>${f.pre ?? pre}</span>` : ""}<input id="${f.id}" inputmode="decimal" placeholder="${f.ph || "0"}" autocomplete="off">${f.unit ? `<span>${f.unit}</span>` : ""}</div></div>`;
+function groups() {
+  const tag = `<span id="tag-%">${LABEL[period].toUpperCase()}LY</span>`;
+  $("g-fixed").innerHTML = `<h3 class="ghead">Fixed costs ${tag.replace("%", "f")}</h3>` + FIXED.map(f => field(f)).join("");
+  $("g-var").innerHTML = `<h3 class="ghead">Variable costs ${tag.replace("%", "v")}</h3>` + VAR.map(f => field(f)).join("");
+  $("g-miles").innerHTML = `<h3 class="ghead">Miles and rate ${tag.replace("%", "m")}</h3>` + MILES.map(f => field(f)).join("");
 }
-
-function calc() {
-  const M = V.miles, loaded = M * (1 - V.deadhead / 100);
-  const fuelPerMile = V.mpg > 0 ? V.fuel / V.mpg : 0;
-  const monthly = { fuel: 0, equip: 0, ins: 0, maint: 0, driver: 0, admin: 0, tolls: 0 };
-  for (const g of GROUPS) for (const f of g.fields) {
-    if (!f.cat || f.id === "fuel") continue;
-    const amt = f.unit === "/mo" ? V[f.id] : f.unit === "/yr" ? V[f.id] / 12 : f.unit === "/mi" ? V[f.id] * M : 0;
-    monthly[f.cat] += amt;
-  }
-  monthly.fuel += fuelPerMile * M;
-  const total = Object.values(monthly).reduce((a, b) => a + b, 0);
-  const fixed = monthly.equip + monthly.ins + monthly.admin + monthly.tolls;
-  const variable = total - fixed;
-  const netShare = 1 - V.factor / 100;
-  const revenue = V.rate * loaded * netShare;
-  const profit = revenue - total;
-  return { M, loaded, fuelPerMile, monthly, total, fixed, variable, revenue, profit, netShare,
-    cpm: M > 0 ? total / M : NaN, be: loaded > 0 && netShare > 0 ? total / (loaded * netShare) : NaN, ppm: M > 0 ? profit / M : NaN };
+groups();
+const parse = s => { const n = parseFloat(String(s).replace(/[$,\s]/g, "")); return Number.isFinite(n) && n >= 0 ? n : 0; };
+function fill(vals) {
+  for (const f of ALL) { V[f.id] = vals[f.id] || 0; $(f.id).value = vals[f.id] ? String(Math.round(vals[f.id] * 100) / 100) : ""; }
+  render();
 }
+for (const f of ALL) $(f.id).addEventListener("input", e => {
+  let v = parse(e.target.value); if (f.id === "dh") v = Math.min(95, v);
+  V[f.id] = v; render();
+});
+
+function setPeriod(p) {
+  if (p === period) return;
+  const k = PER[period] / PER[p];
+  const next = {};
+  for (const f of ALL) next[f.id] = f.noScale ? V[f.id] : V[f.id] * k;
+  period = p;
+  for (const b of $("seg").children) b.setAttribute("aria-checked", b.dataset.p === p);
+  for (const t of ["f", "v", "m"]) $("tag-" + t).textContent = LABEL[p].toUpperCase() + "LY";
+  fill(next);
+}
+for (const b of $("seg").children) b.addEventListener("click", () => setPeriod(b.dataset.p));
+$("clear").addEventListener("click", () => fill({}));
+$("example").addEventListener("click", () => { const k = PER.week / PER[period]; const v = {}; for (const f of ALL) v[f.id] = f.noScale ? EXAMPLE[f.id] : EXAMPLE[f.id] * k; fill(v); });
 
 function render() {
-  const r = calc();
-  $("cpm").innerHTML = `${money(r.cpm, 2)} <small>/ mile</small>`;
-  $("be").textContent = money(r.be, 2);
-  const cls = n => n >= 0 ? "pos" : "neg";
-  $("ppm").textContent = money(r.ppm, 2); $("ppm").className = cls(r.profit);
-  $("pmo").textContent = money(r.profit); $("pmo").className = cls(r.profit);
-  $("pyr").textContent = money(r.profit * 12); $("pyr").className = cls(r.profit);
+  const fixed = FIXED.reduce((a, f) => a + V[f.id], 0);
+  const variable = VAR.reduce((a, f) => a + V[f.id], 0);
+  const total = fixed + variable, M = V.miles, loadedShare = 1 - V.dh / 100;
+  const ready = M > 0 && total > 0;
+  const cpm = ready ? total / M : NaN;
+  const hasRate = ready && V.rate > 0;
+  const epm = hasRate ? V.rate * loadedShare : NaN;
+  const ppm = hasRate ? epm - cpm : NaN;
+  const profit = hasRate ? ppm * M : NaN;
+  const revenue = hasRate ? epm * M : NaN;
+  const be = ready && loadedShare > 0 ? cpm / loadedShare : NaN;
+  const L = LABEL[period];
 
-  const rows = CATS.map(c => ({ ...c, perMile: r.M > 0 ? r.monthly[c.id] / r.M : 0, share: r.total > 0 ? r.monthly[c.id] / r.total : 0 }))
-    .filter(c => c.share > 0).sort((a, b) => b.share - a.share);
-  $("stack").innerHTML = rows.map(c => `<div style="width:${(c.share * 100).toFixed(2)}%;background:${c.color}"></div>`).join("");
-  $("legend").innerHTML = rows.map(c => `<div class="lg${c.id === "ins" ? " ins" : ""}"><i style="background:${c.color}"></i><span>${c.name}</span><b>${cents(c.perMile)}</b><em>${Math.round(c.share * 100)}%</em></div>`).join("");
+  $("per-tag").textContent = `· ${L}ly numbers`;
+  $("cpm").innerHTML = `${ready ? money(cpm, 2) : "$0.00"} <small>/ mile</small>`;
+  $("empty").hidden = ready;
+  $("r-fixed").textContent = money(fixed);
+  $("r-var").textContent = money(variable);
+  $("r-total").textContent = money(total);
+  $("r-rpm").textContent = V.rate > 0 ? money(V.rate, 2) : "—";
+  $("r-epm").textContent = money(epm, 2);
+  const sign = (el, n, txt) => { el.textContent = txt; el.className = Number.isFinite(n) ? (n >= 0 ? "pos" : "neg") : ""; };
+  sign($("r-ppm"), ppm, money(ppm, 2));
+  $("r-profit-l").textContent = `Profit this ${L}`;
+  sign($("r-profit"), profit, money(profit));
+  sign($("r-margin"), profit, Number.isFinite(profit) && revenue > 0 ? Math.round(profit / revenue * 100) + "%" : "—");
+  $("r-be").textContent = money(be, 2);
 
-  const insMile = r.M > 0 ? r.monthly.ins / r.M : 0;
-  const insShare = r.total > 0 ? r.monthly.ins / r.total : 0;
-  $("ins-line").textContent = `Insurance is ${cents(insMile)} of every mile, ${Math.round(insShare * 100)}% of your costs and ${money(r.monthly.ins * 12)} a year. A coverage review can show whether your limits, deductibles and payment plan still fit how you run.`;
-
-  $("fuel-derived").textContent = `Fuel works out to ${cents(r.fuelPerMile)} per mile.`;
-  $("ins-derived").textContent = `Total insurance: ${money(r.monthly.ins)} a month, ${money(r.monthly.ins * 12)} a year.`;
-
-  $("m-fixed").textContent = money(r.fixed);
-  $("m-varf").textContent = `${cents(r.M > 0 ? r.variable / r.M : 0)} × ${r.M.toLocaleString("en-US")} mi`;
-  $("m-var").textContent = money(r.variable);
-  $("m-totf").textContent = "fixed + per-mile"; $("m-tot").textContent = money(r.total);
-  $("m-cpmf").textContent = `${money(r.total)} ÷ ${r.M.toLocaleString("en-US")} mi`; $("m-cpm").textContent = money(r.cpm, 2);
-  $("m-revf").textContent = `${money(V.rate, 2)} × ${Math.round(r.loaded).toLocaleString("en-US")} loaded mi${V.factor ? ` × ${100 - V.factor}%` : ""}`; $("m-rev").textContent = money(r.revenue);
-  $("m-bef").textContent = `${money(r.total)} ÷ ${Math.round(r.loaded).toLocaleString("en-US")} loaded mi${V.factor ? ` ÷ ${100 - V.factor}%` : ""}`; $("m-be").textContent = money(r.be, 2);
+  $("mix").hidden = !ready;
+  if (ready) {
+    const parts = [["Insurance", V.ins, "var(--c-ins)"], ["Other fixed", fixed - V.ins, "var(--c-fixed)"], ["Variable", variable, "var(--c-var)"]].filter(p => p[1] > 0);
+    $("stack").innerHTML = parts.map(([, v, c]) => `<div style="width:${(v / total * 100).toFixed(2)}%;background:${c}"></div>`).join("");
+    $("key").innerHTML = parts.map(([n, v, c]) => `<span><i style="background:${c}"></i>${n} ${cents(v / M)}/mi</span>`).join("");
+  }
+  const showIns = ready && V.ins > 0;
+  $("ins-box").hidden = !showIns;
+  if (showIns) {
+    const yearly = V.ins * PER[period];
+    $("ins-line").textContent = `Insurance is ${cents(V.ins / M)} of every mile and ${Math.round(V.ins / total * 100)}% of your costs, about ${money(yearly)} a year. Make sure your coverage, limits and payment plan still match how you run.`;
+  }
 }
-render();
+fill(EXAMPLE);
 
 if (BOOKING_URL) { $("cta").href = BOOKING_URL; $("cta").target = "_blank"; $("cta").rel = "noopener noreferrer"; }
 else $("cta").addEventListener("click", e => { e.preventDefault(); $("cta-note").hidden = false; });
