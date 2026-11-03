@@ -5,7 +5,8 @@
 | calc.globaltlm.com | Missed Revenue Calculator (service businesses) |
 | trucking.globaltlm.com | Trucking Quote Leak Calculator |
 | audit.globaltlm.com | Quote Leak Audit (demo, CSV upload, Connect HighLevel) |
-| cpm.globaltlm.com | Trucking Ad Cost Calculator (CPM to cost per bound policy) |
+| cpm.globaltlm.com | Trucking Cost Per Mile Calculator (owner-operators) |
+| ads.globaltlm.com | Trucking Ad Cost Calculator (ad CPM to cost per bound policy) |
 
 Hosted on Cloudflare Pages (free). DNS stays in Squarespace.
 `_worker.js` picks the page from the subdomain and handles `/api/ghl` and `/api/signup`.
@@ -25,7 +26,7 @@ Every push to the branch redeploys. To deploy by hand instead: `bash site/build.
 ## 2. Add the custom domains in Cloudflare
 
 Pages project → **Custom domains** → **Set up a custom domain**. Add each one:
-`calc.globaltlm.com`, `trucking.globaltlm.com`, `audit.globaltlm.com`, `cpm.globaltlm.com`.
+`calc.globaltlm.com`, `trucking.globaltlm.com`, `audit.globaltlm.com`, `cpm.globaltlm.com`, `ads.globaltlm.com`.
 Cloudflare will say the DNS is managed elsewhere and show a CNAME target. Do step 3, then come back and click **Check DNS records** if needed.
 
 ## 3. Add the CNAME records in Squarespace
@@ -38,6 +39,7 @@ Squarespace → **Domains** → globaltlm.com → **DNS** → **Custom records**
 | trucking | CNAME | globaltlm-calculators.pages.dev |
 | audit | CNAME | globaltlm-calculators.pages.dev |
 | cpm | CNAME | globaltlm-calculators.pages.dev |
+| ads | CNAME | globaltlm-calculators.pages.dev |
 
 If Cloudflare shows a different target in step 2, use that. DNS usually takes minutes, up to 24 hours.
 Cloudflare issues the HTTPS certificates on its own once the records resolve.

@@ -8,7 +8,8 @@ const SITES = {
   calc: "/missed-revenue/",
   trucking: "/trucking/",
   audit: "/audit/",
-  cpm: "/cpm/"
+  cpm: "/cpm/",
+  ads: "/ads/"
 };
 
 const json = (data, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });

@@ -6,7 +6,8 @@ Two standalone pages. Open either file in a browser or host it anywhere.
 |---|---|---|
 | `missed-revenue.html` | Service businesses | Monthly and yearly revenue lost to inquiries that never get follow-up |
 | `trucking-quote-leak.html` | Trucking insurance agencies | Commission lost to unworked quote requests and renewals lost for lack of outreach |
-| `cpm-calculator.html` | Trucking insurance agencies | CPM solver, plus ad spend → clicks → quote requests → bound policies, cost per bind and commission payback |
+| `cost-per-mile.html` | Owner-operators (lead magnet for trucking agencies) | True cost per mile by category, break-even rate per loaded mile, profit, and insurance's share of every mile |
+| `ad-cost-calculator.html` | Trucking insurance agencies | CPM solver, plus ad spend → clicks → quote requests → bound policies, cost per bind and commission payback |
 
 ## Before sharing
 
