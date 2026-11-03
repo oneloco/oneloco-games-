@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Trucking Ad Cost Calculator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: quick CPM solver on top, then a funnel from ad spend to bound policies with a sticky result panel. Same highway-sign system as the other globaltlm calculators. */
+:root {
+  --bg: #eef1f5; --surface: #ffffff; --line: #d3d9e2; --fg: #111a27; --muted: #566274;
+  --brand: #1b3a63; --brand-ink: #ffffff; --amber: #f2a900; --amber-ink: #1c1400; --good: #17804a; --leak: #b42318;
+  --panel: #13233b; --panel-fg: #f3f6fa; --panel-muted: #a9b6c8;
+  --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
+  --brand: #7fa7dc; --brand-ink: #0b1626; --good: #5fd39a; --leak: #ff7b6e; --panel: #1a2a43; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
+  --brand: #7fa7dc; --brand-ink: #0b1626; --good: #5fd39a; --leak: #ff7b6e; --panel: #1a2a43; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; gap: 24px; }
+.eyebrow { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--brand); margin-bottom: 10px; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 7vw, 54px); line-height: 1; margin: 0; text-transform: uppercase; text-wrap: balance; }
+h1 em { font-style: normal; background: var(--amber); color: var(--amber-ink); padding: 0 .15em; }
+header p { color: var(--muted); margin: 12px 0 0; max-width: 64ch; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 26px; margin: 0; text-transform: uppercase; text-wrap: balance; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
+.card > p { margin: 0; color: var(--muted); max-width: 68ch; }
+
+.seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.seg button { font: 700 14px var(--body); padding: 8px 14px; border-radius: 7px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); }
+.solver { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 640px) { .solver { grid-template-columns: 1fr; } }
+.cell { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; min-width: 0; }
+.cell label { font-weight: 700; font-size: 14px; }
+.cell.answer { background: var(--panel); color: var(--panel-fg); border-color: var(--panel); }
+.cell.answer label { color: var(--amber); font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+.cell.answer output { font-family: var(--display); font-weight: 800; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.cell.answer small { color: var(--panel-muted); font-size: 12px; }
+.formula { font: 13px var(--mono); color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+
+.num { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 0 10px; min-width: 0; }
+.num span { color: var(--muted); font-family: var(--mono); font-size: 14px; }
+.num input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--fg); font: 500 16px var(--mono); padding: 9px 4px; font-variant-numeric: tabular-nums; text-align: right; }
+.num input:focus { outline: none; }
+.num:focus-within { outline: 2px solid var(--brand); outline-offset: 1px; }
+.seg button:focus-visible, .btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+.funnel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 800px) { .funnel { grid-template-columns: 1fr; } }
+.inputs { display: grid; gap: 10px; }
+.field { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; }
+.field label { font-weight: 700; font-size: 15px; }
+.field .help { color: var(--muted); font-size: 13px; margin: 0; }
+.entry { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.entry input[type="range"] { flex: 1; min-width: 0; accent-color: var(--brand); }
+.entry .num { width: 130px; flex: none; }
+.subhead { font-family: var(--display); font-weight: 700; font-size: 19px; text-transform: uppercase; margin: 8px 0 0; }
+
+.result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--panel); color: var(--panel-fg); border-radius: 14px; padding: 22px; display: grid; gap: 14px; border-top: 6px solid var(--amber); }
+.result .tag { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--amber); }
+.big { font-family: var(--display); font-weight: 800; font-size: clamp(44px, 9vw, 64px); line-height: .95; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.big small { font-size: .36em; font-weight: 600; color: var(--panel-muted); text-transform: uppercase; }
+.steps { display: grid; gap: 6px; border-top: 1px solid rgba(255,255,255,.14); padding-top: 12px; }
+.step { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: baseline; font-size: 14px; }
+.step span { color: var(--panel-muted); }
+.step b { font: 500 16px var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+.step i { font: normal 12px var(--mono); color: var(--panel-muted); text-align: right; min-width: 84px; font-variant-numeric: tabular-nums; }
+.roi { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; border-top: 1px solid rgba(255,255,255,.14); padding-top: 12px; font-size: 14px; }
+.roi b { font: 500 20px var(--mono); font-variant-numeric: tabular-nums; }
+.roi .pos { color: var(--good); }
+.roi .neg { color: var(--leak); }
+.result p { margin: 0; font-size: 13px; color: var(--panel-muted); }
+.btn { display: inline-flex; align-items: center; justify-content: center; font: 700 15px var(--body); border-radius: 8px; padding: 12px 18px; cursor: pointer; text-decoration: none; border: 2px solid transparent; }
+.btn.amber { background: var(--amber); color: var(--amber-ink); }
+
+ul.notes { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); font-size: 14px; max-width: 74ch; }
+dl.terms { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 20px; }
+dl.terms div { min-width: 0; }
+dl.terms dt { font: 600 13px var(--mono); color: var(--brand); }
+dl.terms dd { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+footer { color: var(--muted); font-size: 12px; max-width: 80ch; display: grid; gap: 6px; }
+footer b { font-family: var(--display); font-size: 15px; text-transform: uppercase; color: var(--fg); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">For trucking insurance agencies</div>
+    <h1>What does a <em>bound policy</em> cost in ads?</h1>
+    <p>Start with CPM, the price of 1,000 ad views on Facebook and Instagram. Follow it through clicks, quote requests and binds to see what each new trucking account really costs, and what it pays back in commission.</p>
+  </header>
+
+  <section class="card" aria-labelledby="q-h">
+    <h2 id="q-h">Quick CPM calculator</h2>
+    <p>Know two of the three? Pick what you want to find and enter the other two.</p>
+    <div class="seg" role="group" aria-label="Solve for">
+      <button type="button" data-solve="cpm" aria-pressed="true">Find CPM</button>
+      <button type="button" data-solve="imp" aria-pressed="false">Find impressions</button>
+      <button type="button" data-solve="spend" aria-pressed="false">Find budget</button>
+    </div>
+    <div class="solver" id="solver"></div>
+    <p class="formula" id="formula"></p>
+  </section>
+
+  <section class="card" aria-labelledby="f-h">
+    <h2 id="f-h">From ad spend to bound policies</h2>
+    <p>Example numbers are filled in. Replace them with your own from Ads Manager and your CRM.</p>
+    <div class="funnel">
+      <div class="inputs" id="inputs"></div>
+      <aside class="result" aria-live="polite">
+        <div class="tag">Estimated ad cost per bound policy</div>
+        <div class="big" id="cpb">$0</div>
+        <div class="steps" id="steps"></div>
+        <div class="roi" id="roi"></div>
+        <p>Estimates from the numbers you entered, not a promise of results. Results vary by market, budget and offer.</p>
+        <div><a class="btn amber" id="book-btn" href="#book">Book a free 20-min review</a></div>
+        <p id="book-note" hidden>Online booking is being set up. Reach out to One Loco directly to schedule.</p>
+      </aside>
+    </div>
+    <ul class="notes">
+      <li>A lower CPM isn't always better. Cheap views from the wrong audience can raise your cost per bound policy. Judge ads on quotes and binds, not CPM or cost per lead alone.</li>
+      <li>"Click to lead" is the share of clickers who submit a quote request. Facebook instant forms usually convert higher than a website form, but the leads can be lower quality.</li>
+      <li>Commission payback counts first-year commission only. Policies that renew keep paying, so the long-term return is higher.</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="t-h">
+    <h2 id="t-h">The terms</h2>
+    <dl class="terms">
+      <div><dt>CPM</dt><dd>Cost per 1,000 impressions. Ad spend ÷ impressions × 1,000.</dd></div>
+      <div><dt>Impressions</dt><dd>How many times your ad was shown. One person can see it more than once.</dd></div>
+      <div><dt>CTR</dt><dd>Click-through rate. Clicks ÷ impressions.</dd></div>
+      <div><dt>CPC</dt><dd>Cost per click. Ad spend ÷ clicks.</dd></div>
+      <div><dt>CPL</dt><dd>Cost per lead. Ad spend ÷ quote requests.</dd></div>
+      <div><dt>Cost per bind</dt><dd>Ad spend ÷ bound policies. The number that matters most.</dd></div>
+    </dl>
+  </section>
+
+  <footer>
+    <b>One Loco</b>
+    <span>Meta ads and GoHighLevel follow-up for trucking insurance agencies. This calculator gives planning estimates only. It is not financial advice and does not promise any result.</span>
+  </footer>
+</div>
+
+<script>
+// Paste your calendar or booking page link here. Leave empty to show a fallback note.
+const BOOKING_URL = "";
+
+const $ = id => document.getElementById(id);
+const money = (n, d = 0) => Number.isFinite(n) ? "$" + n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) : "—";
+const whole = n => Number.isFinite(n) ? Math.round(n).toLocaleString("en-US") : "—";
+const one = n => Number.isFinite(n) ? (Math.round(n * 10) / 10).toLocaleString("en-US") : "—";
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+
+// ---------- Quick solver ----------
+const Q = Object.assign({ spend: 1500, imp: 75000, cpm: 20, solve: "cpm" }, store.get("cpm.quick", {}));
+const QF = {
+  spend: { label: "Ad spend", pre: "$", step: 1 },
+  imp: { label: "Impressions", step: 100 },
+  cpm: { label: "CPM", pre: "$", step: 0.01 }
+};
+function solveQuick() {
+  if (Q.solve === "cpm") Q.cpm = Q.imp > 0 ? Q.spend / Q.imp * 1000 : NaN;
+  if (Q.solve === "imp") Q.imp = Q.cpm > 0 ? Q.spend / Q.cpm * 1000 : NaN;
+  if (Q.solve === "spend") Q.spend = Q.imp * Q.cpm / 1000;
+}
+function fmtQ(k) { return k === "imp" ? whole(Q.imp) : money(Q[k], 2); }
+function renderSolver() {
+  solveQuick();
+  $("solver").innerHTML = ["spend", "imp", "cpm"].map(k => k === Q.solve
+    ? `<div class="cell answer"><label for="q-${k}">${QF[k].label}</label><output id="q-${k}">${fmtQ(k)}</output><small>${k === "cpm" ? "per 1,000 impressions" : k === "imp" ? "ad views" : "total budget"}</small></div>`
+    : `<div class="cell"><label for="q-${k}">${QF[k].label}</label><div class="num">${QF[k].pre ? `<span>${QF[k].pre}</span>` : ""}<input id="q-${k}" type="number" inputmode="decimal" min="0" step="${QF[k].step}" value="${Math.round(Q[k] * 100) / 100}"></div></div>`).join("");
+  for (const k of ["spend", "imp", "cpm"]) if (k !== Q.solve) $("q-" + k).addEventListener("input", e => { Q[k] = Math.max(0, parseFloat(e.target.value) || 0); updateQuick(); });
+  for (const b of document.querySelectorAll("[data-solve]")) b.setAttribute("aria-pressed", b.dataset.solve === Q.solve);
+  updateFormula();
+}
+function updateQuick() {
+  solveQuick();
+  $("q-" + Q.solve).textContent = fmtQ(Q.solve);
+  updateFormula(); store.set("cpm.quick", Q);
+}
+function updateFormula() {
+  const f = {
+    cpm: `CPM = ${money(Q.spend, 2)} ÷ ${whole(Q.imp)} × 1,000`,
+    imp: `Impressions = ${money(Q.spend, 2)} ÷ ${money(Q.cpm, 2)} × 1,000`,
+    spend: `Budget = ${whole(Q.imp)} × ${money(Q.cpm, 2)} ÷ 1,000`
+  };
+  $("formula").textContent = f[Q.solve];
+}
+for (const b of document.querySelectorAll("[data-solve]")) b.addEventListener("click", () => { Q.solve = b.dataset.solve; renderSolver(); store.set("cpm.quick", Q); });
+renderSolver();
+
+// ---------- Funnel ----------
+const FIELDS = [
+  { head: "Ads" },
+  { id: "spend", label: "Monthly ad spend", help: "What you spend on Facebook and Instagram ads in a month.", max: 20000, step: 50, pre: "$" },
+  { id: "cpm", label: "CPM", help: "Cost per 1,000 impressions. In Ads Manager under the CPM column.", max: 100, step: 0.5, pre: "$" },
+  { id: "ctr", label: "Click-through rate (CTR)", help: "Share of people who see the ad and click it. Use link CTR.", max: 10, step: 0.1, unit: "%" },
+  { id: "conv", label: "Click to quote request", help: "Share of clickers who submit the quote form.", max: 60, step: 0.5, unit: "%" },
+  { head: "Sales" },
+  { id: "contact", label: "Quote requests you reach", help: "Share of requests where a producer actually talks to the trucker.", max: 100, step: 1, unit: "%" },
+  { id: "quote", label: "Reached requests that get a quote", help: "Some won't qualify or fit your markets.", max: 100, step: 1, unit: "%" },
+  { id: "bind", label: "Quotes that bind", help: "Your quote-to-bind rate.", max: 100, step: 1, unit: "%" },
+  { head: "Payback" },
+  { id: "prem", label: "Average annual premium", help: "Typical yearly premium for a bound trucking account.", max: 60000, step: 250, pre: "$" },
+  { id: "comm", label: "Average commission rate", help: "Blended across carriers and MGAs.", max: 30, step: 0.5, unit: "%" }
+];
+const DEF = { spend: 1500, cpm: 20, ctr: 1.5, conv: 12, contact: 70, quote: 60, bind: 20, prem: 12000, comm: 12 };
+const V = Object.assign({}, DEF, store.get("cpm.funnel", {}));
+$("inputs").innerHTML = FIELDS.map(f => f.head ? `<h3 class="subhead">${f.head}</h3>` : `
+  <div class="field">
+    <label for="${f.id}">${f.label}</label>
+    <p class="help">${f.help}</p>
+    <div class="entry"><input type="range" id="${f.id}-r" min="0" max="${f.max}" step="${f.step}" aria-label="${f.label} slider">
+      <div class="num">${f.pre ? `<span>${f.pre}</span>` : ""}<input id="${f.id}" type="number" inputmode="decimal" min="0" step="${f.step}">${f.unit ? `<span>${f.unit}</span>` : ""}</div></div>
+  </div>`).join("");
+for (const f of FIELDS.filter(f => f.id)) {
+  const box = $(f.id), sl = $(f.id + "-r");
+  const set = (v, from) => {
+    v = Math.max(0, Number.isFinite(v) ? v : 0); if (f.unit === "%") v = Math.min(100, v);
+    V[f.id] = v; if (from !== box) box.value = v; if (from !== sl) { sl.max = Math.max(f.max, v); sl.value = v; }
+    store.set("cpm.funnel", V); renderFunnel();
+  };
+  box.value = V[f.id]; sl.max = Math.max(f.max, V[f.id]); sl.value = V[f.id];
+  box.addEventListener("input", () => set(parseFloat(box.value), box));
+  box.addEventListener("blur", () => { box.value = V[f.id]; });
+  sl.addEventListener("input", () => set(parseFloat(sl.value), sl));
+}
+function renderFunnel() {
+  const imp = V.cpm > 0 ? V.spend / V.cpm * 1000 : 0;
+  const clicks = imp * V.ctr / 100;
+  const leads = clicks * V.conv / 100;
+  const reached = leads * V.contact / 100;
+  const quotes = reached * V.quote / 100;
+  const binds = quotes * V.bind / 100;
+  const per = (n) => n > 0 ? V.spend / n : NaN;
+  $("cpb").innerHTML = binds > 0 ? `${money(per(binds))} <small>per policy</small>` : `— <small>no binds at these numbers</small>`;
+  const rows = [
+    ["Impressions", whole(imp), "CPM " + money(V.cpm, 2)],
+    ["Clicks", whole(clicks), "CPC " + money(per(clicks), 2)],
+    ["Quote requests", one(leads), "CPL " + money(per(leads), 2)],
+    ["Reached", one(reached), money(per(reached)) + " each"],
+    ["Quoted", one(quotes), money(per(quotes)) + " each"],
+    ["Bound policies", one(binds), money(per(binds)) + " each"]
+  ];
+  $("steps").innerHTML = rows.map(([l, n, c]) => `<div class="step"><span>${l}</span><b>${n}</b><i>${c}</i></div>`).join("");
+  const comm = binds * V.prem * V.comm / 100;
+  const ratio = V.spend > 0 ? comm / V.spend : NaN;
+  $("roi").innerHTML = `<span>First-year commission</span><b>${money(comm)}</b><span>per month · </span><b class="${ratio >= 1 ? "pos" : "neg"}">${Number.isFinite(ratio) ? one(ratio) + "×" : "—"}</b><span>ad spend</span>`;
+}
+renderFunnel();
+
+if (BOOKING_URL) { $("book-btn").href = BOOKING_URL; $("book-btn").target = "_blank"; $("book-btn").rel = "noopener noreferrer"; }
+else $("book-btn").addEventListener("click", e => { e.preventDefault(); $("book-note").hidden = false; });
+</script>
+
+</body>
+</html>

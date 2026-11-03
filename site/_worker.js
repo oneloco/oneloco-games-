@@ -7,7 +7,8 @@ import { pullAgencyData } from "./ghl-pull.js";
 const SITES = {
   calc: "/missed-revenue/",
   trucking: "/trucking/",
-  audit: "/audit/"
+  audit: "/audit/",
+  cpm: "/cpm/"
 };
 
 const json = (data, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
