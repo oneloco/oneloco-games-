@@ -101,13 +101,20 @@ ul.ticks li::before { content: ""; flex: none; width: 10px; height: 10px; margin
 .outcomes b { font-family: var(--display); font-weight: 700; font-size: 19px; text-transform: uppercase; letter-spacing: .02em; line-height: 1.1; }
 .outcomes span { font-size: 14px; color: var(--panel-muted); }
 
-.proof { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px 32px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px 26px; }
-@media (max-width: 600px) { .proof { grid-template-columns: 1fr; } }
-.proof-num { display: grid; gap: 2px; }
-.proof-num b { font-family: var(--display); font-weight: 800; font-size: clamp(64px, 12vw, 96px); line-height: .9; color: var(--amber); font-variant-numeric: tabular-nums; }
-.proof-num span { font-family: var(--display); font-weight: 700; font-size: 20px; text-transform: uppercase; letter-spacing: .03em; }
-.proof p.what { font-size: 18px; line-height: 1.45; max-width: 52ch; }
-.proof .fine { margin-top: 8px; }
+/* Proof strip under the hero headline: one result line plus its source note. */
+.proof-strip { border-left: 5px solid var(--amber); background: var(--surface); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; max-width: 52ch; }
+.proof-strip b { font-family: var(--display); font-weight: 700; font-size: clamp(20px, 3.2vw, 24px); line-height: 1.15; text-transform: uppercase; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
+.proof-strip span { font-size: 13px; color: var(--muted); }
+
+.proof { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px 26px; display: grid; gap: 18px; }
+.tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tiles li { background: var(--panel); color: var(--panel-fg); border-radius: 10px; padding: 16px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.tiles b { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 6vw, 48px); line-height: .95; color: var(--amber); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tiles span { font-size: 14px; color: var(--panel-muted); }
+.proof p.what { font-size: 17px; line-height: 1.5; max-width: 70ch; }
+.proof ul.ticks { font-size: 16px; }
+.proof .fine { max-width: 90ch; }
 
 /* Calculator */
 .calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
@@ -206,6 +213,10 @@ footer b { color: var(--fg); }
       <div class="eyebrow">For trucking insurance agency owners and independent agents</div>
       <h1>Where's your next trucking quote <em>coming from?</em></h1>
       <p class="sub">Referrals slow down and shared leads go to five agencies at once. Global TLM runs Meta ads on your own account, so truckers ask your agency for a quote. Then every request gets a text, a call and follow-up until it's bound or closed.</p>
+      <div class="proof-strip">
+        <b>$55K in Meta ads → 132 bound trucking policies → $2.6M+ in premium written</b>
+        <span>One broker's account. Spend from Meta; policies and premium from the agency's own records. Results vary.</span>
+      </div>
       <div class="inside">
         <b>What's in it</b>
         <ul class="ticks">
@@ -215,7 +226,7 @@ footer b { color: var(--fg); }
           <li>The Follow-Up Playbook: first texts, a first email and two 7-day follow-up sequences</li>
         </ul>
       </div>
-      <p class="for">Producer or CSR at someone else's agency? <a href="#not-owner">Pass this on to your owner.</a></p>
+      <p class="for">Agent or CSR at someone else's agency? <a href="#not-owner">Pass this on to your owner.</a></p>
     </div>
 
     <section class="formcard" id="get-checklist" aria-labelledby="form-h">
@@ -234,7 +245,7 @@ footer b { color: var(--fg); }
         <label for="su-phone">Mobile phone</label>
         <input type="tel" id="su-phone" name="phone" autocomplete="tel" inputmode="tel" required maxlength="20" placeholder="(555) 555-5555">
         <label class="consent" for="su-sms"><input type="checkbox" id="su-sms" name="smsConsent"><span>Yes, text me about my checklist request and to schedule a free review call. I agree to receive texts from Global TLM by One Loco (Warflower Productions Ltd. Co.). Msg frequency varies. Msg &amp; data rates may apply. Reply HELP for help, STOP to opt out. Consent is not a condition of purchase. <a href="https://oneloco.io/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://oneloco.io/terms-conditions/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span></label>
-        <button class="btn amber" type="submit" id="su-btn">Send me both</button>
+        <button class="btn amber" type="submit" id="su-btn">See how 132 policies happened. Get the checklist + playbook.</button>
         <p class="msg" id="su-msg" role="status" aria-live="polite"></p>
         <p class="fine">We only use your email to send the checklist and related tips for trucking agencies. Unsubscribe anytime.</p>
       </form>
@@ -246,7 +257,7 @@ footer b { color: var(--fg); }
     <ul class="problems">
       <li>Referrals and word of mouth don't keep up with growth.</li>
       <li>Bought leads are shared. Five agencies call the same trucker.</li>
-      <li>The quote requests you do get go cold while producers are busy.</li>
+      <li>The quote requests you do get go cold while agents are busy.</li>
     </ul>
   </section>
 
@@ -285,30 +296,37 @@ footer b { color: var(--fg); }
 
   <section aria-labelledby="how-h">
     <h2 class="sec" id="how-h">How Global TLM works</h2>
-    <p class="lead">A lead machine set up for your agency, so quote requests get worked while your producers are on the phone.</p>
+    <p class="lead">A lead machine set up for your agency, so quote requests get worked while your agents are on the phone.</p>
     <ul class="outcomes">
       <li><b>Quote requests that come to you</b><span>Meta ads on your account reach owner-operators and small fleets. The ad account, the leads and the data stay yours. Nothing is shared or resold.</span></li>
       <li><b>A text to every request</b><span>Each quote request gets a text right away.</span></li>
-      <li><b>Calls booked for producers</b><span>Truckers land on your agents' calendars.</span></li>
+      <li><b>Calls booked for agents</b><span>Truckers land on your agents' calendars.</span></li>
       <li><b>Quotes chased until bound</b><span>Follow-up keeps going after the quote goes out.</span></li>
-      <li><b>Renewal outreach</b><span>Clients hear from you before their renewal date.</span></li>
+      <li><b>Renewal outreach</b><span>Renewal outreach starts 90 days before every policy renews, for your clients and for prospects.</span></li>
     </ul>
   </section>
 
   <section aria-label="Track record">
     <div class="proof">
-      <div class="proof-num"><b>6,000+</b><span>trucker leads from Meta ads</span></div>
-      <div>
-        <p class="what">5+ years running Facebook and Instagram ads for a commercial trucking insurance broker. Now we build the same lead machine for your agency.</p>
-        <p class="fine">Leads are quote-request form submissions, not quotes or bound policies. Results vary by market, budget and offer.</p>
-      </div>
+      <ul class="tiles">
+        <li><b>$55,424</b><span>in Meta ads</span></li>
+        <li><b>132</b><span>bound policies</span></li>
+        <li><b>$2.6M+</b><span>premium written</span></li>
+        <li><b>~$420</b><span>in ads per bound policy</span></li>
+      </ul>
+      <p class="what">Average policy: $19,800+ in premium (provable), about $26,500 estimated. At an assumed 10% commission, that's about $2,000 to $2,650 per policy. And every bound policy goes into renewal automation, so that $420 can keep paying.</p>
+      <ul class="ticks">
+        <li>Instagram leads bound about 70% more often than Facebook leads (4.3% vs 2.5%).</li>
+        <li>The median lead took 30 days to bind. Follow-up is where policies are won.</li>
+      </ul>
+      <p class="fine">One commercial trucking insurance broker's account. Ad spend from Meta Ads Manager; leads, bound policies and premium from the agency's own records. Premium is recorded in ranges: "provable" uses the bottom of each range, "estimated" the middle. Commission uses an assumed 10% rate; yours may differ. Renewal results are not included. Results vary.</p>
     </div>
   </section>
 
   <section aria-labelledby="calc-h" id="calculator">
     <span class="eyebrow">Optional</span>
     <h2 class="sec" id="calc-h">How many more policies could your quote requests bind?</h2>
-    <p class="lead">Estimate the policies and commission your agency could add when every quote request and renewal gets worked until it's bound or closed. Replace the example numbers with your agency's own.</p>
+    <p class="lead">Estimate the policies and commission your agency could add when every quote request and renewal gets worked until it's bound or closed.</p>
     <div class="calc">
       <div class="inputs">
         <div class="field">
@@ -323,13 +341,13 @@ footer b { color: var(--fg); }
         </div>
         <div class="field">
           <label for="close">Quote-to-bind rate</label>
-          <p class="help">Out of requests your producers do work, the share that end up bound.</p>
-          <div class="entry"><input type="range" id="close-r" min="0" max="100" step="1" aria-label="Bind rate slider"><div class="num"><input id="close" type="number" inputmode="decimal" min="0" max="100" step="1"><span>%</span></div></div>
+          <p class="help">Out of requests your agents do work, the share that end up bound.</p>
+          <div class="entry"><input type="range" id="close-r" min="0" max="100" step="0.1" aria-label="Bind rate slider"><div class="num"><input id="close" type="number" inputmode="decimal" min="0" max="100" step="0.1"><span>%</span></div></div>
         </div>
         <div class="field">
           <label for="sale">Average annual premium per policy</label>
           <p class="help">Total yearly premium for a typical bound account: primary liability, cargo, physical damage and so on.</p>
-          <div class="entry"><input type="range" id="sale-r" min="0" max="60000" step="250" aria-label="Average premium slider"><div class="num"><span>$</span><input id="sale" type="number" inputmode="decimal" min="0" step="1"></div></div>
+          <div class="entry"><input type="range" id="sale-r" min="0" max="60000" step="100" aria-label="Average premium slider"><div class="num"><span>$</span><input id="sale" type="number" inputmode="decimal" min="0" step="1"></div></div>
         </div>
         <div class="field">
           <label for="comm">Your average commission rate</label>
@@ -347,7 +365,7 @@ footer b { color: var(--fg); }
           <p class="help">Clients who moved to another agency without hearing from you 60 to 90 days before renewal. Set to 0 to leave renewals out.</p>
           <div class="entry"><input type="range" id="rlost-r" min="0" max="100" step="1" aria-label="Renewals lost percent slider"><div class="num"><input id="rlost" type="number" inputmode="decimal" min="0" max="100" step="1"><span>%</span></div></div>
         </div>
-        <p class="fine" id="example-note">Filled in with example numbers. Replace them with your agency's own.</p>
+        <p class="fine" id="example-note">Defaults from real results. Enter your own.</p>
       </div>
 
       <aside class="result" aria-live="polite">
@@ -396,7 +414,7 @@ footer b { color: var(--fg); }
   <section class="forward" id="not-owner" aria-labelledby="owner-h">
     <div>
       <h2 id="owner-h">Not the agency owner?</h2>
-      <p>If you're a producer or CSR at someone else's agency, this is built for whoever runs it. Send them the link so they can run their own numbers.</p>
+      <p>If you're an agent or CSR at someone else's agency, this is built for whoever runs it. Send them the link so they can run their own numbers.</p>
     </div>
     <div>
       <div class="actions">
@@ -424,6 +442,7 @@ footer b { color: var(--fg); }
       <div><h3>Who is it for?</h3><p>Owners and managers of independent trucking insurance agencies, including solo agents, who write owner-operators and small fleets.</p></div>
       <div><h3>Do I need ads running already?</h3><p>No. The checklist works on quote requests from anywhere: web forms, calls and referrals. The review covers what you have today.</p></div>
       <div><h3>Are the leads shared or resold?</h3><p>No. The ads run on your agency's own Meta account, so every quote request goes only to you. The ad account, the leads and the data stay yours, even if you stop working with us.</p></div>
+      <div><h3>Where do these numbers come from?</h3><p>One commercial trucking insurance broker's Meta ads. Ad spend comes from Meta Ads Manager; bound policies and premium come from the agency's own records. We never name clients. Results vary.</p></div>
     </div>
     <div><a class="btn amber" href="#get-checklist" id="faq-cta">Send me both</a></div>
   </section>
@@ -436,7 +455,7 @@ footer b { color: var(--fg); }
 <button class="totop" type="button" id="totop" hidden>↑ Back to top</button>
 
 <script>
-const EXAMPLE = { inq: 40, miss: 30, close: 25, sale: 12000, comm: 15, ren: 15, rlost: 10 };
+const EXAMPLE = { inq: 40, miss: 30, close: 2.7, sale: 19800, comm: 15, ren: 15, rlost: 10 };
 const fields = ["inq", "miss", "close", "sale", "comm", "ren", "rlost"];
 const pct = new Set(["miss", "close", "comm", "rlost"]);
 const money = n => "$" + Math.round(n).toLocaleString("en-US");
@@ -445,8 +464,8 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
-// v2 key: inputs saved under the old example numbers don't carry over.
-const INPUTS_KEY = "tql.inputs.v2";
+// v3 key: inputs saved under the old default numbers don't carry over.
+const INPUTS_KEY = "tql.inputs.v3";
 const saved = store.get(INPUTS_KEY, null);
 const vals = Object.assign({}, EXAMPLE, saved || {});
 if (saved) document.getElementById("example-note").hidden = true;
