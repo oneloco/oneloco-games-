@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one column on phones; on wide screens inputs sit left and a sticky result panel sits right. Below that, the math, a checklist, signup and booking. */
+/* Layout: one column on phones; on wide screens inputs sit left and a sticky result panel sits right. Below that, the math, a checklist, signup and a link to the trucking checklist page. */
 :root {
   --bg: #f3f5f4;
   --surface: #ffffff;
@@ -154,7 +154,7 @@ footer { color: var(--muted); font-size: 12px; max-width: 75ch; }
       </div>
       <p class="disclaimer">These are estimates based on your inputs, not a guarantee. Real results vary by market, offer and how fast leads are contacted.</p>
       <div class="ctas">
-        <a class="btn primary" id="book-top" href="#book">Book a consultation</a>
+        <a class="btn primary" href="https://trucking.globaltlm.com/">Get the free checklist + playbook</a>
         <a class="btn ghost" href="#checklist">See the checklist</a>
       </div>
     </aside>
@@ -202,8 +202,7 @@ footer { color: var(--muted); font-size: 12px; max-width: 75ch; }
       <div class="book" id="book">
         <h2>Talk it through</h2>
         <p>A short call to look at where your leads are slipping and what to fix first.</p>
-        <a class="btn primary" id="book-btn" href="#book" target="_blank" rel="noopener noreferrer">Book a consultation</a>
-        <p class="fine" id="book-note" hidden>Online booking is being set up. Leave your email above and we'll reach out to schedule.</p>
+        <a class="btn primary" href="https://trucking.globaltlm.com/">Get the free checklist + playbook</a>
       </div>
     </section>
   </div>
@@ -212,9 +211,6 @@ footer { color: var(--muted); font-size: 12px; max-width: 75ch; }
 </div>
 
 <script>
-// Paste your calendar or booking page link here. Leave empty to show a fallback note.
-const BOOKING_URL = "https://api.leadconnectorhq.com/widget/booking/S3TIrV8q7A0mAT4cXa28";
-
 const EXAMPLE = { inq: 120, miss: 30, close: 25, sale: 1500 };
 const fields = ["inq", "miss", "close", "sale"];
 const money = n => "$" + Math.round(n).toLocaleString("en-US");
@@ -286,14 +282,6 @@ function progress() { const n = ITEMS.filter((_, i) => done[i]).length; document
 list.addEventListener("change", e => { const i = e.target.id.slice(1); done[i] = e.target.checked; store.set("mrc.checks", done); progress(); });
 progress();
 
-// Booking
-const bookBtn = document.getElementById("book-btn");
-if (BOOKING_URL) { bookBtn.href = BOOKING_URL; document.getElementById("book-top").href = BOOKING_URL; document.getElementById("book-top").target = "_blank"; }
-else {
-  bookBtn.removeAttribute("target");
-  bookBtn.addEventListener("click", e => { e.preventDefault(); document.getElementById("book-note").hidden = false; document.getElementById("su-email").focus(); });
-}
-
 // Email signup, saved to the artifact's database
 let dbP = window.claude?.use ? window.claude.use("db") : Promise.resolve(null);
 const form = document.getElementById("signup"), msg = document.getElementById("su-msg");
@@ -318,7 +306,7 @@ form.addEventListener("submit", async e => {
     }
     form.reset(); msg.className = "msg ok"; msg.textContent = "You're on the list. Check your inbox for the playbook.";
   } catch (err) {
-    msg.className = "msg err"; msg.textContent = "Your signup couldn't be saved. Try again, or use the booking button to reach us.";
+    msg.className = "msg err"; msg.textContent = "Your signup couldn't be saved. Please try again in a minute.";
   }
 });
 </script>

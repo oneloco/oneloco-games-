@@ -125,8 +125,7 @@ footer b { font-family: var(--display); font-size: 15px; text-transform: upperca
         <div class="steps" id="steps"></div>
         <div class="roi" id="roi"></div>
         <p>Estimates from the numbers you entered, not a promise of results. Results vary by market, budget and offer.</p>
-        <div><a class="btn amber" id="book-btn" href="#book">Book a free 20-min review</a></div>
-        <p id="book-note" hidden>Online booking is being set up. Reach out to One Loco directly to schedule.</p>
+        <div><a class="btn amber" href="https://trucking.globaltlm.com/">Get the free checklist + playbook</a></div>
       </aside>
     </div>
     <ul class="notes">
@@ -155,9 +154,6 @@ footer b { font-family: var(--display); font-size: 15px; text-transform: upperca
 </div>
 
 <script>
-// Paste your calendar or booking page link here. Leave empty to show a fallback note.
-const BOOKING_URL = "https://api.leadconnectorhq.com/widget/booking/S3TIrV8q7A0mAT4cXa28";
-
 const $ = id => document.getElementById(id);
 const money = (n, d = 0) => Number.isFinite(n) ? "$" + n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) : "—";
 const whole = n => Number.isFinite(n) ? Math.round(n).toLocaleString("en-US") : "—";
@@ -264,9 +260,6 @@ function renderFunnel() {
   $("roi").innerHTML = `<span>First-year commission</span><b>${money(comm)}</b><span>per month · </span><b class="${ratio >= 1 ? "pos" : "neg"}">${Number.isFinite(ratio) ? one(ratio) + "×" : "—"}</b><span>ad spend</span>`;
 }
 renderFunnel();
-
-if (BOOKING_URL) { $("book-btn").href = BOOKING_URL; $("book-btn").target = "_blank"; $("book-btn").rel = "noopener noreferrer"; }
-else $("book-btn").addEventListener("click", e => { e.preventDefault(); $("book-note").hidden = false; });
 </script>
 
 </body>

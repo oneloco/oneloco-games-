@@ -50,11 +50,7 @@ Cloudflare issues the HTTPS certificates on its own once the records resolve.
 2. Cloudflare Pages project → **Settings** → **Variables and Secrets** → add a secret `SIGNUP_WEBHOOK_URL` with that URL. Redeploy.
 3. Submit one test signup, then map the fields in the workflow (create contact from `email`, `name`, `agency`; tag by `page`).
 
-Until this is set, the signup form shows "couldn't be saved" and asks people to use the booking button.
-
-## 5. Booking links
-
-Set `BOOKING_URL` near the top of the script in each page under `calculators/` and push.
+Until this is set, the signup form shows "couldn't be saved".
 
 ## Handoff Nov 4
 
@@ -64,56 +60,18 @@ This repo is now owned by the "GTLM Site" chat. The trucker quote funnel belongs
 
 - All five domains are live: calc, trucking, audit, cpm and ads `.globaltlm.com`.
 - `SIGNUP_WEBHOOK_URL` is set in Cloudflare.
-- **Rule: no booking or calendar links anywhere. Booking happens by text bot only.** Step 5 above ("Booking links") is out of date and conflicts with this rule.
+- **Rule: no booking or calendar links anywhere. Booking happens by text bot only.**
 
-### Booking links and buttons still in the repo (not changed)
+### Booking links: removed Nov 4
 
-Found with `git grep -i` for `leadconnectorhq`, `Book a`, `#book`, `calendar` and `booking`, excluding `dist/`.
+All booking and calendar links are gone from the built pages:
 
-**Live booking links (GHL calendar `S3TIrV8q7A0mAT4cXa28`)**
+- calc (`missed-revenue.html`), audit (`audit/index.html`) and ads (`ad-cost-calculator.html`): the booking buttons now link to https://trucking.globaltlm.com/ ("Get the free checklist + playbook"). `BOOKING_URL`, the "booking is being set up" notes and the wiring scripts are deleted.
+- cpm (`cost-per-mile.html`): the insurance-review button, its empty `BOOKING_URL` and its note are deleted, with no replacement.
+- trucking (`trucking-quote-leak.html`): no booking links. The SMS consent wording ("text me… to schedule") stays, because it fits the text-bot rule.
+- `calculators/trucking-book.html` still has the old GHL calendar embed. It isn't copied by `site/build.sh`, so it isn't deployed.
 
-| File | Line | What |
-|---|---|---|
-| `calculators/missed-revenue.html` | 216 | `BOOKING_URL` set to the GHL booking widget |
-| `calculators/missed-revenue.html` | 157 | "Book a consultation" button (`#book-top`, `href="#book"`) |
-| `calculators/missed-revenue.html` | 205 | "Book a consultation" button (`#book-btn`, `href="#book"`) |
-| `calculators/missed-revenue.html` | 206 | "Online booking is being set up…" fallback note |
-| `calculators/missed-revenue.html` | 289–291 | Script that points both buttons at `BOOKING_URL` |
-| `calculators/missed-revenue.html` | 321 | Signup error text: "use the booking button to reach us" |
-| `calculators/missed-revenue.html` | 15 | CSS comment mentions "signup and booking" |
-| `calculators/audit/index.html` | 235 | `BOOKING_URL` set to the GHL booking widget |
-| `calculators/audit/index.html` | 205 | "Book a free 20-min review" button (`#book-btn`, `href="#book"`) |
-| `calculators/audit/index.html` | 206 | "Online booking is being set up…" fallback note |
-| `calculators/audit/index.html` | 506–510 | Script that points the button at `BOOKING_URL` |
-| `calculators/ad-cost-calculator.html` | 159 | `BOOKING_URL` set to the GHL booking widget |
-| `calculators/ad-cost-calculator.html` | 128 | "Book a free 20-min review" button (`#book-btn`, `href="#book"`) |
-| `calculators/ad-cost-calculator.html` | 129 | "Online booking is being set up…" fallback note |
-| `calculators/ad-cost-calculator.html` | 158, 268 | Comment and script that wire `BOOKING_URL` |
-| `calculators/trucking-book.html` | 63–64 | Embedded GHL calendar `<iframe>` (styles at lines 40–41). Not copied by `site/build.sh`, so not deployed. Stale file. |
-
-**Booking button with no link set**
-
-| File | Line | What |
-|---|---|---|
-| `calculators/cost-per-mile.html` | 206 | `BOOKING_URL = ""` |
-| `calculators/cost-per-mile.html` | 162 (button `#cta`), 164, 205, 317 | "Have your insurance reviewed" button, "Online booking is being set up" note, comment, wiring script |
-
-**Docs that still tell people to add booking links**
-
-| File | Line | What |
-|---|---|---|
-| `calculators/README.md` | 14 | "Booking button: set `BOOKING_URL`… to your calendar link" |
-| `site/README.md` | 53 | Signup fallback text mentions "the booking button" |
-| `site/README.md` | 55–57 | "5. Booking links" section |
-
-**Mentions to review (no link or button)**
-
-| File | Line | What |
-|---|---|---|
-| `calculators/trucking-quote-leak.html` | 292 | Copy: "Truckers land on your producers' calendars." |
-| `calculators/trucking-quote-leak.html` | 236 | SMS consent: "text me… to schedule". This fits the text-bot rule, but check the wording. |
-
-These matched the search but aren't booking links: `calculators/audit/ghl-pull.js:6` (HighLevel API host), plus "Facebook and…", "playbook and…" and "Playbook are…" text in `ad-cost-calculator.html` (102, 211), `trucking-quote-leak.html` (8, 302, 423), `missed-revenue.html` (200) and `trucking-thank-you.html` (61).
+`calculators/audit/ghl-pull.js` calls the HighLevel API host. That's the data pull for the audit, not a booking link.
 
 ### What's where
 

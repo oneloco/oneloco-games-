@@ -160,8 +160,6 @@ footer { color: var(--muted); font-size: 12px; max-width: 80ch; }
       </ul>
       <div class="callout" id="ins-box" hidden>
         <p id="ins-line"></p>
-        <a class="btn" id="cta" href="#faq">Have your insurance reviewed</a>
-        <p id="cta-note" hidden>Online booking is being set up. Ask your insurance agent to look at your coverage, limits and payment plan.</p>
       </div>
       <p class="note">For planning only. This isn't an insurance quote, and your real costs depend on your truck, lanes and season.</p>
     </aside>
@@ -202,9 +200,6 @@ Break-even rate    = cost per mile ÷ (1 − empty mile share)</pre>
 </div>
 
 <script>
-// Paste the agency's quote or booking link here. Leave empty to show a fallback note.
-const BOOKING_URL = "";
-
 const $ = id => document.getElementById(id);
 const money = (n, d = 0) => Number.isFinite(n) ? (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) : "—";
 const cents = n => Number.isFinite(n) ? (n * 100).toFixed(1) + "¢" : "—";
@@ -313,9 +308,6 @@ function render() {
   }
 }
 fill(EXAMPLE);
-
-if (BOOKING_URL) { $("cta").href = BOOKING_URL; $("cta").target = "_blank"; $("cta").rel = "noopener noreferrer"; }
-else $("cta").addEventListener("click", e => { e.preventDefault(); $("cta-note").hidden = false; });
 </script>
 
 </body>

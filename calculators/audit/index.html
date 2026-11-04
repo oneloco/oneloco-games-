@@ -202,8 +202,7 @@ footer b { font-family: var(--display); font-size: 15px; text-transform: upperca
           <div class="stat"><b id="annualPrem">$0</b><span>Premium written elsewhere per year</span></div>
         </div>
         <p>Estimates based on the data and inputs shown, not a promise of results. Results vary by market, budget and offer.</p>
-        <div class="ctas"><a class="btn amber" id="book-btn" href="#book">Book a free 20-min review</a></div>
-        <p id="book-note" hidden>Online booking is being set up. Reach out to One Loco directly to schedule.</p>
+        <div class="ctas"><a class="btn amber" href="https://trucking.globaltlm.com/">Get the free checklist + playbook</a></div>
       </aside>
     </div>
     <div class="math">
@@ -231,8 +230,7 @@ footer b { font-family: var(--display); font-size: 15px; text-transform: upperca
 </div>
 
 <script>
-// Set these before hosting. WORKER_URL is the deployed worker.js that relays the HighLevel pull.
-const BOOKING_URL = "https://api.leadconnectorhq.com/widget/booking/S3TIrV8q7A0mAT4cXa28";
+// Set this before hosting. WORKER_URL is the deployed worker.js that relays the HighLevel pull.
 const WORKER_URL = "";
 
 const $ = id => document.getElementById(id);
@@ -503,12 +501,10 @@ $("ghl-go").addEventListener("click", async () => {
   } finally { btn.disabled = false; }
 });
 
-// ---------- Tabs, booking, start ----------
+// ---------- Tabs, start ----------
 const tabs = ["demo", "csv", "ghl"];
 function showTab(t) { for (const x of tabs) { $("t-" + x).setAttribute("aria-selected", x === t); $("p-" + x).hidden = x !== t; } }
 for (const t of tabs) $("t-" + t).addEventListener("click", () => showTab(t));
-if (BOOKING_URL) { $("book-btn").href = BOOKING_URL; $("book-btn").target = "_blank"; $("book-btn").rel = "noopener noreferrer"; }
-else $("book-btn").addEventListener("click", e => { e.preventDefault(); $("book-note").hidden = false; });
 
 emptyFindings();
 analyze(demoRows(), "Sample Trucking Agency", true);

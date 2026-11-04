@@ -11,7 +11,7 @@ Two standalone pages. Open either file in a browser or host it anywhere.
 
 ## Before sharing
 
-- **Booking button:** set `BOOKING_URL` near the top of each page's script to your calendar link. While it's empty, the button shows a "booking is being set up" note.
+- **Booking:** by text bot only, after the trucking.globaltlm.com form. Don't add booking or calendar links to any page.
 - **Email signup:** the form saves to the Claude artifact database and only works when the page runs as a Claude artifact. When hosting the file elsewhere, connect the form to a GoHighLevel form or webhook instead.
 
 All results are labeled as estimates. The assumptions are listed on each page.
