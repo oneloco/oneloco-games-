@@ -30,7 +30,7 @@ if (/^\d{6,20}$/.test(META_PIXEL_ID)) {
   --brand-ink: #ffffff;
   --amber: #f2a900;
   --amber-ink: #1c1400;
-  --leak: #b42318;
+  --alert: #b42318;
   --panel: #13233b;
   --panel-fg: #f3f6fa;
   --panel-muted: #a9b6c8;
@@ -40,10 +40,10 @@ if (/^\d{6,20}$/.test(META_PIXEL_ID)) {
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
-  --brand: #7fa7dc; --brand-ink: #0b1626; --leak: #ff7b6e; --panel: #1a2a43; --panel-fg: #f3f6fa; --panel-muted: #a9b6c8; color-scheme: dark; } }
+  --brand: #7fa7dc; --brand-ink: #0b1626; --alert: #ff7b6e; --panel: #1a2a43; --panel-fg: #f3f6fa; --panel-muted: #a9b6c8; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
-  --brand: #7fa7dc; --brand-ink: #0b1626; --leak: #ff7b6e; --panel: #1a2a43; --panel-fg: #f3f6fa; --panel-muted: #a9b6c8; color-scheme: dark; }
+  --brand: #7fa7dc; --brand-ink: #0b1626; --alert: #ff7b6e; --panel: #1a2a43; --panel-fg: #f3f6fa; --panel-muted: #a9b6c8; color-scheme: dark; }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -79,7 +79,7 @@ section > p.lead { color: var(--muted); max-width: 62ch; }
 
 .problems { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 720px) { .problems { grid-template-columns: 1fr; } }
-.problems li { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--leak); border-radius: 10px; padding: 16px 18px; font-weight: 600; font-size: 17px; line-height: 1.35; }
+.problems li { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--alert); border-radius: 10px; padding: 16px 18px; font-weight: 600; font-size: 17px; line-height: 1.35; }
 
 .get { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 @media (max-width: 900px) { .get { grid-template-columns: 1fr; } }
@@ -141,7 +141,7 @@ ul.ticks li::before { content: ""; flex: none; width: 10px; height: 10px; margin
 .math td.f { font: 13px var(--mono); color: var(--muted); }
 .math td.v { font: 500 15px var(--mono); text-align: right; white-space: nowrap; }
 .math tr.total td { font-weight: 700; color: var(--fg); }
-.math tr.total td.v { color: var(--leak); }
+.math tr.total td.v { color: var(--alert); }
 ul.assume { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); font-size: 14px; max-width: 72ch; }
 details.how { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 22px; }
 details.how[open] { display: grid; gap: 14px; }
@@ -158,12 +158,12 @@ details.how summary { cursor: pointer; font-family: var(--display); font-weight:
 form.signup { display: grid; gap: 10px; }
 form.signup label { font-weight: 600; font-size: 14px; }
 form.signup input[type="text"], form.signup input[type="email"], form.signup input[type="tel"] { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; width: 100%; }
-form.signup input[aria-invalid="true"] { border-color: var(--leak); }
+form.signup input[aria-invalid="true"] { border-color: var(--alert); }
 form.signup .btn { width: 100%; font-size: 17px; padding: 14px 18px; }
 .msg { font-size: 14px; margin: 0; }
 .msg:empty { display: none; }
 .msg.ok { color: var(--brand); }
-.msg.err { color: var(--leak); }
+.msg.err { color: var(--alert); }
 .fine { font-size: 12px; color: var(--muted); margin: 0; }
 .consent { display: flex; gap: 10px; align-items: flex-start; font-weight: 400 !important; font-size: 13px !important; color: var(--muted); line-height: 1.45; }
 .consent input { margin-top: 3px; flex: 0 0 auto; width: 18px; height: 18px; }
@@ -277,13 +277,8 @@ footer b { color: var(--fg); }
       </div>
       <div class="card">
         <span class="tag">Free, 20 minutes</span>
-        <h3>A Quote Leak Review</h3>
-        <p>A Google Meet with a Global TLM strategist to look at:</p>
-        <ul class="ticks">
-          <li>How your quote requests come in</li>
-          <li>How fast they're worked</li>
-          <li>Where they drop off between quote and bind</li>
-        </ul>
+        <h3>A Trucking Lead Review</h3>
+        <p>Free 20-minute Trucking Lead Review on Google Meet. We look at where your next trucking quote requests will come from and how each one gets worked until it's bound or closed.</p>
       </div>
     </div>
   </section>
@@ -312,8 +307,8 @@ footer b { color: var(--fg); }
 
   <section aria-labelledby="calc-h" id="calculator">
     <span class="eyebrow">Optional</span>
-    <h2 class="sec" id="calc-h">Run your numbers</h2>
-    <p class="lead">Estimate how much commission goes elsewhere when quote requests and renewals don't get followed up. Replace the example numbers with your agency's own.</p>
+    <h2 class="sec" id="calc-h">How many more policies could your quote requests bind?</h2>
+    <p class="lead">Estimate the policies and commission your agency could add when every quote request and renewal gets worked until it's bound or closed. Replace the example numbers with your agency's own.</p>
     <div class="calc">
       <div class="inputs">
         <div class="field">
@@ -356,15 +351,15 @@ footer b { color: var(--fg); }
       </div>
 
       <aside class="result" aria-live="polite">
-        <div class="tag">Estimated commission lost</div>
+        <div class="tag">Commission you could be adding</div>
         <div class="big" id="annualComm">$0 <small>/ year</small></div>
         <div class="stats">
-          <div class="stat"><b id="monthlyComm">$0</b><span>Total commission lost per month</span></div>
-          <div class="stat"><b id="annualPrem">$0</b><span>Premium that went elsewhere per year</span></div>
-          <div class="stat"><b id="newComm">$0</b><span>From new quote requests, per year</span></div>
-          <div class="stat"><b id="renComm">$0</b><span>From lost renewals, per year</span></div>
-          <div class="stat"><b id="lostDeals">0</b><span>New policies per month not bound</span></div>
-          <div class="stat"><b id="renLost">0</b><span>Renewals per month lost</span></div>
+          <div class="stat"><b id="lostDeals">0</b><span>Policies you could be binding each month</span></div>
+          <div class="stat"><b id="monthlyComm">$0</b><span>Commission you could be adding per month</span></div>
+          <div class="stat"><b id="newComm">$0</b><span>From quote requests worked until bound, per year</span></div>
+          <div class="stat"><b id="renComm">$0</b><span>From renewals you keep, per year</span></div>
+          <div class="stat"><b id="annualPrem">$0</b><span>Premium you could be writing per year</span></div>
+          <div class="stat"><b id="renLost">0</b><span>Renewals you could keep each month</span></div>
         </div>
         <p class="disclaimer">Estimates only, from your own inputs. Not a promise of results. Real numbers vary by market, carrier appetite and how fast quote requests are worked.</p>
         <a class="btn amber" href="#get-checklist">Get the checklist + playbook</a>
@@ -516,7 +511,7 @@ render();
 // people who use Gmail or Outlook in the browser, so this uses the phone's share sheet when there is one,
 // and otherwise shows the message with copy, Gmail and Outlook options.
 const SHARE_URL = "https://trucking.globaltlm.com";
-const SHARE_SUBJECT = "Worth 2 minutes: where our trucking quotes leak";
+const SHARE_SUBJECT = "Worth 2 minutes: more trucking quote requests, worked until bound";
 const SHARE_TEXT = "This is a free checklist for trucking insurance agencies on following up quote requests and renewals faster, plus a free 20-minute review. Thought it was worth a look:";
 const shareBody = SHARE_TEXT + "\n\n" + SHARE_URL;
 async function copyText(text, okMsg, failMsg) {
