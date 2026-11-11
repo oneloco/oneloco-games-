@@ -166,6 +166,7 @@ form.signup { display: grid; gap: 10px; }
 form.signup label { font-weight: 600; font-size: 14px; }
 form.signup input[type="text"], form.signup input[type="email"], form.signup input[type="tel"] { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; width: 100%; }
 form.signup input[aria-invalid="true"] { border-color: var(--alert); }
+.field-err { font-size: 13px; color: var(--alert); margin: -4px 0 0; }
 form.signup .btn { width: 100%; font-size: 17px; padding: 14px 18px; }
 .msg { font-size: 14px; margin: 0; }
 .msg:empty { display: none; }
@@ -243,7 +244,8 @@ footer b { color: var(--fg); }
         <label for="su-email">Work email</label>
         <input type="email" id="su-email" name="email" autocomplete="email" required maxlength="200">
         <label for="su-phone">Mobile phone</label>
-        <input type="tel" id="su-phone" name="phone" autocomplete="tel" inputmode="tel" required maxlength="20" placeholder="(555) 555-5555">
+        <input type="tel" id="su-phone" name="phone" autocomplete="tel" inputmode="tel" required maxlength="20" placeholder="(555) 555-5555" aria-describedby="su-phone-err">
+        <p class="field-err" id="su-phone-err" role="alert" hidden>Enter a 10-digit US mobile number, like (555) 555-5555.</p>
         <label class="consent" for="su-sms"><input type="checkbox" id="su-sms" name="smsConsent"><span>Yes, text me about my checklist request and to schedule a free review call. I agree to receive texts from Global TLM by One Loco (Warflower Productions Ltd. Co.). Msg frequency varies. Msg &amp; data rates may apply. Reply HELP for help, STOP to opt out. Consent is not a condition of purchase. <a href="https://oneloco.io/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://oneloco.io/terms-conditions/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span></label>
         <button class="btn amber" type="submit" id="su-btn">See how 132 policies happened. Get the checklist + playbook.</button>
         <p class="msg" id="su-msg" role="status" aria-live="polite"></p>
@@ -608,18 +610,36 @@ function fail(text, el) {
   if (el) { el.setAttribute("aria-invalid", "true"); el.focus(); }
 }
 form.addEventListener("input", e => e.target.removeAttribute("aria-invalid"));
+
+// Phone clean-up: autofill and paste often add "+1". Drop a leading 1 from 11 digits, then show (817) 555-0142.
+// Anything that isn't 10 digits after that is left as entered so validation can flag it, never cut short.
+const phoneEl = $("su-phone"), phoneErr = $("su-phone-err");
+function phoneDigits(v) { let d = String(v).replace(/\D/g, ""); if (d.length === 11 && d[0] === "1") d = d.slice(1); return d; }
+const phoneOk = d => /^[2-9]\d{2}[2-9]\d{6}$/.test(d);
+function tidyPhone() {
+  const d = phoneDigits(phoneEl.value);
+  if (d.length === 10) phoneEl.value = `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+  return d;
+}
+phoneEl.addEventListener("input", () => { phoneErr.hidden = true; tidyPhone(); });
+phoneEl.addEventListener("change", tidyPhone);
+phoneEl.addEventListener("paste", () => setTimeout(tidyPhone, 0));
+
 form.addEventListener("submit", async e => {
   e.preventDefault();
   if (btn.disabled) return;
   const first = $("su-name").value.trim(), last = $("su-last").value.trim(), agency = $("su-agency").value.trim();
   const email = $("su-email").value.trim();
-  let digits = $("su-phone").value.replace(/\D/g, "");
-  if (digits.length === 11 && digits[0] === "1") digits = digits.slice(1);
+  const digits = tidyPhone();
   if (!first) return fail("Enter your first name.", $("su-name"));
   if (!last) return fail("Enter your last name.", $("su-last"));
   if (!agency) return fail("Enter your agency name.", $("su-agency"));
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("Enter a valid email address, like name@agency.com.", $("su-email"));
-  if (!/^[2-9]\d{2}[2-9]\d{6}$/.test(digits)) return fail("Enter a 10-digit US mobile number, like (555) 555-5555.", $("su-phone"));
+  if (!phoneOk(digits)) {
+    msg.className = "msg"; msg.textContent = "";
+    phoneErr.hidden = false; phoneEl.setAttribute("aria-invalid", "true"); phoneEl.focus();
+    return;
+  }
   const sms = $("su-sms").checked;
   const r = calc();
   const payload = {
