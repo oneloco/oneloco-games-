@@ -2,6 +2,8 @@
 // - Sends each subdomain to its calculator (see SITES).
 // - /api/ghl relays a read-only HighLevel pull for the Quote Leak Audit. The token is never stored or logged.
 // - /api/signup forwards calculator email signups to a HighLevel inbound webhook (SIGNUP_WEBHOOK_URL secret).
+// - www.globaltlm.com and globaltlm.com get the Global TLM home page at "/" (see HOME_HOSTS). The Pages
+//   address shows it at /home-preview/ with a noindex header.
 import { pullAgencyData } from "./ghl-pull.js";
 
 const SITES = {
@@ -11,6 +13,10 @@ const SITES = {
   cpm: "/cpm/",
   ads: "/ads/"
 };
+
+// Hosts that get the home page. DNS doesn't point them here yet, so this is ready for go-live only.
+const HOME_HOSTS = new Set(["globaltlm.com", "www.globaltlm.com"]);
+const noindex = res => { const r = new Response(res.body, res); r.headers.set("X-Robots-Tag", "noindex"); return r; };
 
 const json = (data, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 
@@ -69,6 +75,24 @@ export default {
     if (dir && !url.pathname.startsWith(dir)) {
       url.pathname = dir + url.pathname.replace(/^\/+/, "");
       return env.ASSETS.fetch(new Request(url, req));
+    }
+    if (HOME_HOSTS.has(url.hostname)) {
+      if (url.pathname === "/" || url.pathname === "/index.html") url.pathname = "/home/";
+      else if (url.pathname === "/thank-you/" || url.pathname === "/thank-you") url.pathname = "/trucking/thank-you/";
+      return env.ASSETS.fetch(new Request(url, req));
+    }
+    // Home page preview on the Pages address only, marked noindex. /thank-you/ there is the trucking
+    // thank-you page, so a preview signup lands where a live one will.
+    if (!dir) {
+      if (url.pathname === "/home-preview/" || url.pathname === "/home-preview") {
+        url.pathname = "/home/";
+        return noindex(await env.ASSETS.fetch(new Request(url, req)));
+      }
+      if (url.pathname.startsWith("/home/")) return noindex(await env.ASSETS.fetch(req));
+      if (url.pathname === "/thank-you/") {
+        url.pathname = "/trucking/thank-you/";
+        return noindex(await env.ASSETS.fetch(new Request(url, req)));
+      }
     }
     return env.ASSETS.fetch(req);
   }
