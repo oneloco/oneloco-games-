@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page not found | Global TLM</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Not-found page for www/bare globaltlm.com. The worker serves it with status 404. Same tokens as home.html. */
+:root {
+  --bg: #eef1f5; --surface: #ffffff; --line: #d3d9e2; --fg: #111a27; --muted: #566274;
+  --brand: #1b3a63; --brand-ink: #ffffff; --amber: #f2a900;
+  --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
+  --brand: #7fa7dc; --brand-ink: #0b1626; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
+  --brand: #7fa7dc; --brand-ink: #0b1626; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { width: 100%; max-width: 1060px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.topbar { border-bottom: 1px solid var(--line); }
+.topbar .wrap { padding-block: 14px; }
+.brand { font-family: var(--display); font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: .04em; color: var(--fg); text-decoration: none; }
+main { flex: 1; display: flex; align-items: center; }
+main .wrap { padding-block: 56px; display: grid; gap: 14px; justify-items: start; }
+.eyebrow { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--brand); }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(36px, 8vw, 56px); line-height: 1; margin: 0; text-transform: uppercase; }
+p { margin: 0; color: var(--muted); font-size: 17px; max-width: 46ch; }
+.btn { display: inline-flex; margin-top: 8px; font: 700 15px var(--body); border-radius: 8px; padding: 12px 18px; text-decoration: none; background: var(--brand); color: var(--brand-ink); }
+.btn:hover { filter: brightness(1.07); }
+a:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+footer .wrap { padding-block: 22px 36px; display: grid; gap: 6px; }
+footer b { color: var(--fg); font-family: var(--display); font-size: 17px; text-transform: uppercase; letter-spacing: .04em; }
+footer a { color: inherit; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap"><a class="brand" href="/">Global TLM</a></div>
+</header>
+<main>
+  <div class="wrap">
+    <span class="eyebrow">Error 404</span>
+    <h1>Page not found</h1>
+    <p>That page isn't here. It may have moved, or the link has a typo.</p>
+    <a class="btn" href="/">Go to the home page</a>
+  </div>
+</main>
+<footer>
+  <div class="wrap">
+    <b>Global TLM by One Loco</b>
+    <span>Warflower Productions Ltd. Co., doing business as One Loco</span>
+    <span>Fort Worth, Texas · (817) 646-6636 · <a href="mailto:trucking@globaltlm.com">trucking@globaltlm.com</a></span>
+  </div>
+</footer>
+</body>
+</html>

@@ -79,6 +79,12 @@ export default {
     if (HOME_HOSTS.has(url.hostname)) {
       if (url.pathname === "/" || url.pathname === "/index.html") url.pathname = "/home/";
       else if (url.pathname === "/thank-you/" || url.pathname === "/thank-you") url.pathname = "/trucking/thank-you/";
+      else {
+        // Any other path on www/bare gets the Global TLM not-found page with a real 404.
+        url.pathname = "/home/not-found/";
+        const page = await env.ASSETS.fetch(new Request(url, req));
+        return new Response(page.body, { status: 404, headers: page.headers });
+      }
       return env.ASSETS.fetch(new Request(url, req));
     }
     // Home page preview on the Pages address only, marked noindex. /thank-you/ there is the trucking
