@@ -598,6 +598,15 @@ const attribution = (() => {
 })();
 // Flat string values for the payload: missing values are "", never "undefined" or "null".
 const attributionFields = () => Object.fromEntries(ATTR_FIELDS.map(k => [k, attribution[k] == null ? "" : String(attribution[k])]));
+// Checkup button: attribution is stored per site, so carry this visitor's first touch to www/checkup/ in the link.
+// Only values that exist are added; the checkup page keeps them as the first touch.
+for (const a of document.querySelectorAll('a[href*="/checkup/"]')) {
+  const u = new URL(a.getAttribute("href"), location.href);
+  for (const k of ATTR_KEYS) if (attribution[k]) u.searchParams.set(k, String(attribution[k]));
+  const touch = { gtlm_lp: attribution.landing_page, gtlm_ref: attribution.referrer, gtlm_fs: attribution.first_seen };
+  for (const [k, v] of Object.entries(touch)) if (v) u.searchParams.set(k, String(v));
+  a.href = u.href;
+}
 
 const form = $("signup"), msg = $("su-msg"), btn = $("su-btn");
 // Hidden copies of the attribution, so a plain form post would carry them too.

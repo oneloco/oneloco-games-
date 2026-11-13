@@ -369,12 +369,19 @@ const attribution = (() => {
   const fromUrl = {};
   // When a key repeats, the last value wins: Meta appends its ad params after any tags already in a boosted post's link.
   for (const k of ATTR_KEYS) { const v = (params.getAll(k).pop() || "").trim(); if (v) fromUrl[k] = v.slice(0, 200); }
-  const hasParams = Object.keys(fromUrl).length > 0;
+  // Hand-off from the checkup button on trucking.globaltlm.com or the home page: the original landing page,
+  // referrer and first_seen, so the first touch isn't replaced by this page or the internal referrer (no original
+  // referrer means a direct visit, so referrer stays empty).
+  const handoff = {};
+  for (const [p, k] of [["gtlm_lp", "landing_page"], ["gtlm_ref", "referrer"], ["gtlm_fs", "first_seen"]]) {
+    const v = (params.getAll(p).pop() || "").trim(); if (v) handoff[k] = v.slice(0, 500);
+  }
+  const hasParams = Object.keys(fromUrl).length > 0 || Object.keys(handoff).length > 0;
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(ATTR_STORE) || "null"); } catch {}
   const savedIsPaid = saved && typeof saved === "object" && ATTR_KEYS.some(k => saved[k]);
   if (savedIsPaid || (saved && typeof saved === "object" && !hasParams)) return saved;
-  const touch = { ...fromUrl, landing_page: location.href.slice(0, 500), referrer: document.referrer.slice(0, 500), first_seen: new Date().toISOString() };
+  const touch = { ...fromUrl, landing_page: location.href.slice(0, 500), referrer: document.referrer.slice(0, 500), first_seen: new Date().toISOString(), ...(Object.keys(handoff).length ? { referrer: "" } : {}), ...handoff };
   try { localStorage.setItem(ATTR_STORE, JSON.stringify(touch)); } catch {}
   return touch;
 })();
