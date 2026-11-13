@@ -88,6 +88,8 @@ h2 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 5vw, 
 .gaps li b::before { content: counter(gap) ". "; color: var(--brand); }
 .gaps .fix { color: var(--muted); }
 .gaps .fix strong { color: var(--fg); }
+.gaps.well li b::before { content: "✓ "; }
+.next-step { border-left: 5px solid var(--brand); background: var(--surface); border-radius: 10px; padding: 14px 16px; font-family: var(--display); font-weight: 700; font-size: clamp(20px, 3.2vw, 24px); line-height: 1.15; text-transform: uppercase; letter-spacing: .01em; }
 .proof-strip { border-left: 5px solid var(--amber); background: var(--surface); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; }
 .proof-strip b { font-family: var(--display); font-weight: 700; font-size: clamp(20px, 3.2vw, 24px); line-height: 1.15; text-transform: uppercase; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
 .proof-strip span { font-size: 13px; color: var(--muted); }
@@ -158,10 +160,13 @@ footer.site .small-print { font-size: 12px; margin-top: 6px; }
       </div>
       <h2 id="gaps-h">Your 3 biggest gaps</h2>
       <ol class="gaps" id="gaps" aria-labelledby="gaps-h"></ol>
+      <h2 id="well-h" hidden>What you do well</h2>
+      <ul class="gaps well" id="well" aria-labelledby="well-h" hidden></ul>
       <div class="proof-strip">
         <b>$55,424 in Meta ads → 132 bound trucking policies → $2.6M+ in premium written</b>
         <span>One commercial trucking insurance broker's account. Spend is from Meta Ads Manager. Policies and premium are from the agency's own records. Results vary.</span>
       </div>
+      <p class="next-step" id="low-volume" hidden></p>
       <section class="formcard" id="get-checklist" aria-labelledby="form-h">
         <h2 id="form-h">Get your full report + the Follow-Up Playbook by email</h2>
       <form class="signup" id="signup" novalidate>
@@ -203,47 +208,47 @@ const $ = id => document.getElementById(id);
 
 // The 8 questions and choices, word for word from the brief (section 3). pts = points for that answer.
 // Weights add up to 100: speed 15, follow-up 15, who answers 14, lead source 12, renewals 12, tracking 12, volume 12, new authority 8.
-// gap/fix: shown when the answer is not the top one; the 3 answers that lose the most points are the 3 gaps.
+// gap/fix: word for word from the brief (section 4b). A gap shows when the answer is one of the question's two weakest
+// choices; the 3 gaps with the biggest question weight are shown. Q8 has no gap: under 20 a month shows LOW_VOLUME.
 const QUESTIONS = [
   { q: "How fast does a new trucking quote request get a first reply?",
     choices: [["under 5 min", 15], ["under 1 hour", 10], ["same day", 4], ["next day or later", 0]],
-    gap: "New quote requests wait too long for a first reply.",
-    fix: "Turn on an instant text that confirms every new request and says when you'll call, then call the same hour." },
+    gap: "Your first reply is too slow. Truckers often ask several agencies at once, and the first to reach them has the edge.",
+    fix: "Text every new quote request within 5 minutes, even if it's just to confirm you got it and ask for a call time." },
   { q: "How many times do you follow up on a quote before giving up?",
     choices: [["1", 0], ["2–3", 4], ["4–6", 10], ["7+", 15]],
-    gap: "Follow-up stops before most quotes are decided.",
-    fix: "Write one follow-up plan of 7 touches (calls, texts and emails) and use it on every open quote." },
+    gap: "Quotes die from silence. Most agencies stop after one or two tries.",
+    fix: "Follow up on every quote you send on day 2, day 5 and day 10. Mix a text, a call and an email." },
   { q: "Where do most of your trucking leads come from?",
     choices: [["bought/shared leads", 3], ["referrals only", 4], ["our own ads", 12], ["a mix", 9]],
-    gap: "Your lead supply depends on sources you don't control.",
-    fix: "List where every quote came from this month and which ones bound. Put more into the source that binds." },
+    gap: "Bought or shared leads mean you race other agencies for the same trucker.",
+    fix: "Start one small ad on your own Meta account so the quote request comes to you only. Judge it by bound policies, not cost per lead." },
   { q: "When does renewal outreach start?",
     choices: [["we don't", 0], ["under 30 days", 4], ["30–60 days", 8], ["60–90+ days", 12]],
-    gap: "Renewal outreach starts late, or not at all.",
-    fix: "Pull every trucking policy that renews in the next 90 days and start outreach on each one this week." },
+    gap: "Renewals get lost when nobody calls early.",
+    fix: "Start renewal outreach 60 to 90 days before each renewal date, for clients and for prospects who told you their date." },
   { q: "Can you see which ad or source turned into a bound policy?",
     choices: [["no", 0], ["roughly", 5], ["yes, every one", 12]],
-    gap: "You can't see which ad or source turned into a bound policy.",
-    fix: "Add a lead source to every quote, and mark it bound or lost when it closes." },
+    gap: "You can't see which ads turn into bound policies, so you can't tell what to spend more on.",
+    fix: "Tag every lead with its source when it comes in, and mark it when it binds. Review it once a month." },
   { q: "Do new-authority (new DOT/MC) truckers get their own path?",
     choices: [["no", 0], ["sometimes", 4], ["yes", 8]],
-    gap: "New-authority truckers get the same path as everyone else.",
-    fix: "Write a short what-to-expect note for new DOT/MC truckers and send it with your first reply." },
+    gap: "New-authority truckers need different markets and more hand-holding.",
+    fix: "Give new DOT/MC truckers their own path: a separate follow-up and the markets that write new authorities." },
   { q: "Who answers new leads?",
     choices: [["me, when I can", 4], ["one person", 8], ["a team or automation", 14], ["nobody reliably", 0]],
-    gap: "New leads depend on whoever has time.",
-    fix: "Name one person or an automatic text to answer every new lead, with a backup for when they're out." },
+    gap: "If nobody owns new leads, they sit and go cold.",
+    fix: "Give every new lead an owner and a next step the same day. Set up an automatic text so no lead waits." },
   { q: "About how many trucking quote requests do you get a month?",
     choices: [["under 20", 2], ["20–50", 6], ["50–150", 10], ["150+", 12]],
-    gap: "Not enough trucking quote requests come in each month.",
-    fix: "Set a monthly target for trucking quote requests and check each week where the next ones will come from." }
+    gap: null, fix: null }
 ];
 const BANDS = [
   { min: 80, name: "Built to bind", cls: "band-high" },
   { min: 50, name: "Leaving policies on the table", cls: "band-mid" },
   { min: 0, name: "Losing policies daily", cls: "band-low" }
 ];
-const NO_GAPS = "No big gaps found. Keep doing what you're doing.";
+const LOW_VOLUME = "Your next step is more quote requests";
 
 const answers = new Array(QUESTIONS.length).fill(null); // index of the chosen answer per question
 let current = 0;
@@ -252,13 +257,25 @@ function score() {
   return answers.reduce((sum, a, i) => sum + (a == null ? 0 : QUESTIONS[i].choices[a][1]), 0);
 }
 const bandFor = s => BANDS.find(b => s >= b.min);
-// The 3 answers that lose the most points; ties go to the earlier question. Answers with nothing lost are not gaps.
+const weight = Q => Math.max(...Q.choices.map(c => c[1]));
+// True when the answer is one of the question's two weakest choices (lowest points).
+function isGap(i) {
+  const Q = QUESTIONS[i];
+  if (!Q.gap || answers[i] == null) return false;
+  const weakest = Q.choices.map((c, idx) => [c[1], idx]).sort((a, b) => a[0] - b[0]).slice(0, 2).map(p => p[1]);
+  return weakest.includes(answers[i]);
+}
+// The 3 gaps with the biggest weight; ties go to the earlier question.
 function topGaps() {
-  return QUESTIONS.map((Q, i) => ({ i, lost: Math.max(...Q.choices.map(c => c[1])) - Q.choices[answers[i]][1] }))
-    .filter(g => g.lost > 0)
-    .sort((a, b) => b.lost - a.lost || a.i - b.i)
-    .slice(0, 3)
-    .map(g => QUESTIONS[g.i]);
+  return QUESTIONS.map((Q, i) => i).filter(isGap)
+    .sort((a, b) => weight(QUESTIONS[b]) - weight(QUESTIONS[a]) || a - b)
+    .slice(0, 3).map(i => QUESTIONS[i]);
+}
+// Fewer than 3 gaps: fill the rest with what they do well (non-gap answers, biggest weight first).
+function strengths(n) {
+  return QUESTIONS.map((Q, i) => i).filter(i => QUESTIONS[i].gap && !isGap(i))
+    .sort((a, b) => weight(QUESTIONS[b]) - weight(QUESTIONS[a]) || a - b)
+    .slice(0, n).map(i => ({ q: QUESTIONS[i].q, a: QUESTIONS[i].choices[answers[i]][0] }));
 }
 
 function show(id) {
@@ -293,10 +310,10 @@ function renderResult() {
   $("score").innerHTML = s + " <small>/ 100</small>";
   $("band").textContent = band.name;
   $("band").className = "band " + band.cls;
-  $("gaps-h").textContent = gaps.length === 3 ? "Your 3 biggest gaps" : gaps.length ? "Your biggest gaps" : "Your gaps";
+  $("gaps-h").textContent = gaps.length === 3 ? "Your 3 biggest gaps" : gaps.length === 1 ? "Your biggest gap" : "Your biggest gaps";
+  $("gaps-h").hidden = gaps.length === 0;
   const list = $("gaps");
   list.textContent = "";
-  if (!gaps.length) { const li = document.createElement("li"); li.textContent = NO_GAPS; list.appendChild(li); }
   for (const g of gaps) {
     const li = document.createElement("li");
     const b = document.createElement("b"); b.textContent = g.gap;
@@ -306,6 +323,23 @@ function renderResult() {
     li.append(b, p);
     list.appendChild(li);
   }
+  // Fewer than 3 gaps: show what they do well instead.
+  const well = strengths(3 - gaps.length), wellList = $("well");
+  wellList.textContent = "";
+  for (const w of well) {
+    const li = document.createElement("li");
+    const b = document.createElement("b"); b.textContent = w.q;
+    const p = document.createElement("p"); p.className = "fix";
+    const strong = document.createElement("strong"); strong.textContent = "Your answer: ";
+    p.append(strong, w.a);
+    li.append(b, p);
+    wellList.appendChild(li);
+  }
+  $("well-h").hidden = wellList.hidden = well.length === 0;
+  // Q8 under 20 a month: point to lead supply, right above the sign-up form.
+  const low = QUESTIONS[7].choices[answers[7]][0] === "under 20";
+  $("low-volume").textContent = low ? LOW_VOLUME : "";
+  $("low-volume").hidden = !low;
   show("result");
   $("result").focus({ preventScroll: true });
 }
