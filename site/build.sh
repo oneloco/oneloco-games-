@@ -12,7 +12,7 @@ cp calculators/ad-cost-calculator.html dist/ads/index.html
 # Global TLM home page: www./bare globaltlm.com at "/" and /home-preview/ on the Pages address (see _worker.js).
 cp calculators/home.html dist/home/index.html
 cp calculators/home-404.html dist/home/not-found/index.html
-# Quote-to-Bind Checkup: preview at /checkup-preview/ on the Pages address only (see _worker.js).
+# Quote-to-Bind Checkup: www.globaltlm.com/checkup/, plus a noindex preview at /checkup-preview/ on the Pages address.
 cp calculators/checkup.html dist/checkup/index.html
 # Lead magnet PDF, served at /Trucking-Agency-Follow-Up-Playbook.pdf on calc. and trucking.
 cp site/files/Trucking-Agency-Follow-Up-Playbook.pdf dist/missed-revenue/
@@ -20,6 +20,8 @@ cp site/files/Trucking-Agency-Follow-Up-Playbook.pdf dist/trucking/
 sed 's|^const WORKER_URL = "";|const WORKER_URL = "/api/ghl";|' calculators/audit/index.html > dist/audit/index.html
 grep -q 'const WORKER_URL = "/api/ghl";' dist/audit/index.html
 cp site/index.html dist/index.html
+# Sitemap for www.globaltlm.com (served there by _worker.js).
+cp site/sitemap.xml dist/sitemap.xml
 cp site/_worker.js calculators/audit/ghl-pull.js dist/
 # Meta Pixel ID for the trucking pages (empty = no pixel).
 PIXEL_ID="$(tr -cd '0-9' < site/meta-pixel-id.txt 2>/dev/null || true)"
