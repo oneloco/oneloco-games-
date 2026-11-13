@@ -43,6 +43,7 @@ async function ghl(req) {
 }
 
 const ATTRIBUTION_FIELDS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "platform", "fbclid", "landing_page", "referrer", "first_seen"];
+const CHECKUP_FIELDS = ["checkup_score", "checkup_band", "checkup_gap_1", "checkup_gap_2", "checkup_gap_3", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"];
 
 async function signup(req, env) {
   const [body, err] = await readJson(req);
@@ -62,6 +63,8 @@ async function signup(req, env) {
   };
   // Ad attribution from the landing page (first-touch UTM + fbclid), passed through flat as strings.
   for (const k of ATTRIBUTION_FIELDS) payload[k] = String(body[k] ?? "").slice(0, 500);
+  // Quote-to-Bind Checkup results, only when the checkup page sent them (other pages' payloads stay as they were).
+  for (const k of CHECKUP_FIELDS) if (body[k] != null) payload[k] = clip(body[k]);
   const res = await fetch(env.SIGNUP_WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
   return res.ok ? json({ ok: true }) : json({ error: "Signup couldn't be saved." }, 502);
 }
@@ -95,6 +98,12 @@ export default {
         return noindex(await env.ASSETS.fetch(new Request(url, req)));
       }
       if (url.pathname.startsWith("/home/")) return noindex(await env.ASSETS.fetch(req));
+      // Quote-to-Bind Checkup preview, noindex. www/checkup/ is not routed until Joe's yes.
+      if (url.pathname === "/checkup-preview/" || url.pathname === "/checkup-preview") {
+        url.pathname = "/checkup/";
+        return noindex(await env.ASSETS.fetch(new Request(url, req)));
+      }
+      if (url.pathname.startsWith("/checkup/")) return noindex(await env.ASSETS.fetch(req));
       if (url.pathname === "/thank-you/") {
         url.pathname = "/trucking/thank-you/";
         return noindex(await env.ASSETS.fetch(new Request(url, req)));

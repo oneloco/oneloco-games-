@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quote-to-Bind Checkup for trucking insurance agencies | Global TLM</title>
+<meta property="og:title" content="Quote-to-Bind Checkup for trucking insurance agencies | Global TLM">
+<meta name="description" content="8 quick questions, about 2 minutes. Get a score out of 100, your 3 biggest gaps between the quote and the bound policy, and one free fix for each.">
+<link rel="canonical" href="https://www.globaltlm.com/checkup/">
+<script>
+// Meta Pixel. The ID is filled in at build time from site/meta-pixel-id.txt; nothing loads while it is empty.
+const META_PIXEL_ID = "__META_PIXEL_ID__";
+if (/^\d{6,20}$/.test(META_PIXEL_ID)) {
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq("init", META_PIXEL_ID);
+  fbq("track", "PageView");
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Quote-to-Bind Checkup. Same tokens, type and form as the home and trucking pages. One question per screen. */
+:root {
+  --bg: #eef1f5; --surface: #ffffff; --line: #d3d9e2; --fg: #111a27; --muted: #566274;
+  --brand: #1b3a63; --brand-ink: #ffffff; --amber: #f2a900; --amber-ink: #1c1400; --alert: #b42318;
+  --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
+  --brand: #7fa7dc; --brand-ink: #0b1626; --alert: #ff7b6e; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0c131d; --surface: #141e2c; --line: #263347; --fg: #e9eef5; --muted: #9aa8bb;
+  --brand: #7fa7dc; --brand-ink: #0b1626; --alert: #ff7b6e; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+p { margin: 0; }
+a { color: var(--brand); }
+.wrap { width: 100%; max-width: 720px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.topbar { border-bottom: 1px solid var(--line); }
+.topbar .wrap { max-width: 1060px; padding-block: 14px; }
+.brand { font-family: var(--display); font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: .04em; color: var(--fg); text-decoration: none; }
+main { flex: 1; }
+main .wrap { padding-block: 28px 56px; display: grid; gap: 20px; }
+.eyebrow { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--brand); }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(36px, 8vw, 56px); line-height: 1; margin: 0; text-transform: uppercase; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 5vw, 32px); line-height: 1.1; margin: 0; text-transform: uppercase; text-wrap: balance; }
+.lead { color: var(--muted); font-size: 18px; max-width: 52ch; }
+.screen { display: grid; gap: 16px; }
+.screen:focus { outline: none; }
+.btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; font: 700 15px var(--body); border-radius: 8px; padding: 12px 18px; cursor: pointer; text-decoration: none; border: 2px solid transparent; }
+.btn.amber { background: var(--amber); color: var(--amber-ink); }
+.btn.big { font-size: 17px; padding: 14px 22px; }
+.btn:hover { filter: brightness(1.07); }
+.btn[disabled] { opacity: .6; cursor: wait; }
+.btn:focus-visible, input:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.start { justify-self: start; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: 14px; padding: 0; margin: 0; list-style: none; }
+.facts li::before { content: "✓ "; color: var(--brand); font-weight: 700; }
+
+/* Progress and questions */
+.progress { display: grid; gap: 6px; }
+.progress-label { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.bar span { display: block; height: 100%; width: 0; background: var(--amber); border-radius: 99px; transition: width .2s ease; }
+@media (prefers-reduced-motion: reduce) { .bar span { transition: none; } }
+.choices { display: grid; gap: 10px; }
+.choice { width: 100%; text-align: left; font: 600 17px var(--body); color: var(--fg); background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 15px 16px; cursor: pointer; }
+.choice:hover { border-color: var(--brand); }
+.choice[aria-pressed="true"] { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 14%, var(--surface)); }
+.back { justify-self: start; background: none; border: 0; padding: 6px 0; font: 600 15px var(--body); color: var(--brand); cursor: pointer; text-decoration: underline; }
+
+/* Result */
+.score-card { background: var(--surface); border: 1px solid var(--line); border-top: 6px solid var(--amber); border-radius: 14px; padding: 22px; display: grid; gap: 6px; }
+.score-num { font-family: var(--display); font-weight: 800; font-size: clamp(64px, 18vw, 96px); line-height: .9; font-variant-numeric: tabular-nums; }
+.score-num small { font-size: .35em; color: var(--muted); font-weight: 700; }
+.band { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 5vw, 28px); text-transform: uppercase; letter-spacing: .01em; }
+.band-low { color: var(--alert); }
+.band-mid { color: var(--fg); }
+.band-high { color: var(--brand); }
+.gaps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: gap; }
+.gaps li { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 6px; counter-increment: gap; }
+.gaps li b { font-size: 17px; }
+.gaps li b::before { content: counter(gap) ". "; color: var(--brand); }
+.gaps .fix { color: var(--muted); }
+.gaps .fix strong { color: var(--fg); }
+.proof-strip { border-left: 5px solid var(--amber); background: var(--surface); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; }
+.proof-strip b { font-family: var(--display); font-weight: 700; font-size: clamp(20px, 3.2vw, 24px); line-height: 1.15; text-transform: uppercase; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
+.proof-strip span { font-size: 13px; color: var(--muted); }
+
+/* Sign-up form: same rules as the trucking page */
+.formcard { background: var(--surface); border: 1px solid var(--line); border-top: 6px solid var(--amber); border-radius: 14px; padding: 22px; display: grid; gap: 12px; scroll-margin-top: 16px; }
+.formcard h2 { font-size: 24px; letter-spacing: .01em; }
+form.signup { display: grid; gap: 10px; }
+form.signup label { font-weight: 600; font-size: 14px; }
+form.signup input[type="text"], form.signup input[type="email"], form.signup input[type="tel"] { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; width: 100%; }
+form.signup input[aria-invalid="true"] { border-color: var(--alert); }
+.field-err { font-size: 13px; color: var(--alert); margin: -4px 0 0; }
+form.signup .btn { width: 100%; font-size: 17px; padding: 14px 18px; }
+.msg { font-size: 14px; margin: 0; }
+.msg:empty { display: none; }
+.msg.ok { color: var(--brand); }
+.msg.err { color: var(--alert); }
+.fine { font-size: 12px; color: var(--muted); margin: 0; }
+.consent { display: flex; gap: 10px; align-items: flex-start; font-weight: 400 !important; font-size: 13px !important; color: var(--muted); line-height: 1.45; }
+.consent input { margin-top: 3px; flex: 0 0 auto; width: 18px; height: 18px; }
+.consent a { color: inherit; text-decoration: underline; }
+.name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.name-row > div { display: grid; gap: 10px; }
+@media (max-width: 420px) { .name-row { grid-template-columns: 1fr; } }
+
+footer.site { border-top: 1px solid var(--line); }
+footer.site .wrap { max-width: 1060px; padding-block: 22px 36px; display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+footer.site b { color: var(--fg); font-family: var(--display); font-size: 17px; text-transform: uppercase; letter-spacing: .04em; }
+footer.site a { color: inherit; text-decoration: underline; }
+footer.site .small-print { font-size: 12px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap"><a class="brand" href="https://www.globaltlm.com/">Global TLM</a></div>
+</header>
+<main>
+  <div class="wrap">
+    <section class="screen" id="intro" aria-labelledby="intro-h">
+      <span class="eyebrow">Free · 8 questions · about 2 minutes</span>
+      <h1 id="intro-h">Quote-to-Bind Checkup</h1>
+      <p class="lead">For trucking insurance agencies. Find where your trucking quotes go cold, between the quote request and the bound policy.</p>
+      <ul class="facts">
+        <li>One tap per question</li>
+        <li>Score out of 100</li>
+        <li>Your 3 biggest gaps, each with a free fix</li>
+      </ul>
+      <noscript><p class="lead">The checkup needs JavaScript turned on.</p></noscript>
+      <button class="btn amber big start" type="button" id="start">Start the checkup</button>
+    </section>
+
+    <section class="screen" id="quiz" hidden tabindex="-1" aria-labelledby="q-text">
+      <div class="progress">
+        <span class="progress-label" id="q-count">Question 1 of 8</span>
+        <div class="bar" role="progressbar" aria-labelledby="q-count" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0" id="bar"><span id="bar-fill"></span></div>
+      </div>
+      <h2 id="q-text"></h2>
+      <div class="choices" id="choices" role="group" aria-labelledby="q-text"></div>
+      <button class="back" type="button" id="back">← Back</button>
+    </section>
+
+    <section class="screen" id="result" hidden tabindex="-1" aria-labelledby="result-h">
+      <span class="eyebrow">Your Quote-to-Bind Checkup</span>
+      <div class="score-card">
+        <h2 id="result-h">Your score</h2>
+        <div class="score-num" id="score">0 <small>/ 100</small></div>
+        <div class="band" id="band"></div>
+      </div>
+      <h2 id="gaps-h">Your 3 biggest gaps</h2>
+      <ol class="gaps" id="gaps" aria-labelledby="gaps-h"></ol>
+      <div class="proof-strip">
+        <b>$55,424 in Meta ads → 132 bound trucking policies → $2.6M+ in premium written</b>
+        <span>One commercial trucking insurance broker's account. Spend is from Meta Ads Manager. Policies and premium are from the agency's own records. Results vary.</span>
+      </div>
+      <section class="formcard" id="get-checklist" aria-labelledby="form-h">
+        <h2 id="form-h">Get your full report + the Follow-Up Playbook by email</h2>
+      <form class="signup" id="signup" novalidate>
+        <div class="name-row">
+          <div><label for="su-name">First name</label>
+          <input type="text" id="su-name" name="firstName" autocomplete="given-name" required maxlength="80"></div>
+          <div><label for="su-last">Last name</label>
+          <input type="text" id="su-last" name="lastName" autocomplete="family-name" required maxlength="80"></div>
+        </div>
+        <label for="su-agency">Agency name</label>
+        <input type="text" id="su-agency" name="agency" autocomplete="organization" required maxlength="120">
+        <label for="su-email">Work email</label>
+        <input type="email" id="su-email" name="email" autocomplete="email" required maxlength="200">
+        <label for="su-phone">Mobile phone</label>
+        <input type="tel" id="su-phone" name="phone" autocomplete="tel" inputmode="tel" required maxlength="20" placeholder="(555) 555-5555" aria-describedby="su-phone-err">
+        <p class="field-err" id="su-phone-err" role="alert" hidden>Enter a 10-digit US mobile number, like (555) 555-5555.</p>
+        <label class="consent" for="su-sms"><input type="checkbox" id="su-sms" name="smsConsent"><span>Yes, text me about my checklist request and to schedule a free review call. I agree to receive texts from Global TLM by One Loco (Warflower Productions Ltd. Co.). Msg frequency varies. Msg &amp; data rates may apply. Reply HELP for help, STOP to opt out. Consent is not a condition of purchase. <a href="https://oneloco.io/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://oneloco.io/terms-conditions/" target="_blank" rel="noopener">Terms &amp; Conditions</a></span></label>
+        <button class="btn amber" type="submit" id="su-btn">See how 132 policies happened. Get the checklist + playbook.</button>
+        <p class="msg" id="su-msg" role="status" aria-live="polite"></p>
+        <p class="fine">We only use your email to send the checklist and related tips for trucking agencies. Unsubscribe anytime.</p>
+      </form>
+      </section>
+      <button class="back" type="button" id="retake">Retake the checkup</button>
+    </section>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <b>Global TLM by One Loco</b>
+    <span>Warflower Productions Ltd. Co., doing business as One Loco</span>
+    <span>Fort Worth, Texas · (817) 646-6636 · <a href="mailto:trucking@globaltlm.com">trucking@globaltlm.com</a></span>
+    <span><a href="https://oneloco.io/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> · <a href="https://oneloco.io/terms-conditions/" target="_blank" rel="noopener">Terms &amp; Conditions</a> · <a href="https://www.linkedin.com/company/globaltlm/" target="_blank" rel="noopener">LinkedIn</a></span>
+    <span class="small-print">Global TLM is a marketing service. It is not an insurance agency and does not sell insurance. Results vary.</span>
+  </div>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// The 8 questions and choices, word for word from the brief (section 3). pts = points for that answer.
+// Weights add up to 100: speed 15, follow-up 15, who answers 14, lead source 12, renewals 12, tracking 12, volume 12, new authority 8.
+// gap/fix: shown when the answer is not the top one; the 3 answers that lose the most points are the 3 gaps.
+const QUESTIONS = [
+  { q: "How fast does a new trucking quote request get a first reply?",
+    choices: [["under 5 min", 15], ["under 1 hour", 10], ["same day", 4], ["next day or later", 0]],
+    gap: "New quote requests wait too long for a first reply.",
+    fix: "Turn on an instant text that confirms every new request and says when you'll call, then call the same hour." },
+  { q: "How many times do you follow up on a quote before giving up?",
+    choices: [["1", 0], ["2–3", 4], ["4–6", 10], ["7+", 15]],
+    gap: "Follow-up stops before most quotes are decided.",
+    fix: "Write one follow-up plan of 7 touches (calls, texts and emails) and use it on every open quote." },
+  { q: "Where do most of your trucking leads come from?",
+    choices: [["bought/shared leads", 3], ["referrals only", 4], ["our own ads", 12], ["a mix", 9]],
+    gap: "Your lead supply depends on sources you don't control.",
+    fix: "List where every quote came from this month and which ones bound. Put more into the source that binds." },
+  { q: "When does renewal outreach start?",
+    choices: [["we don't", 0], ["under 30 days", 4], ["30–60 days", 8], ["60–90+ days", 12]],
+    gap: "Renewal outreach starts late, or not at all.",
+    fix: "Pull every trucking policy that renews in the next 90 days and start outreach on each one this week." },
+  { q: "Can you see which ad or source turned into a bound policy?",
+    choices: [["no", 0], ["roughly", 5], ["yes, every one", 12]],
+    gap: "You can't see which ad or source turned into a bound policy.",
+    fix: "Add a lead source to every quote, and mark it bound or lost when it closes." },
+  { q: "Do new-authority (new DOT/MC) truckers get their own path?",
+    choices: [["no", 0], ["sometimes", 4], ["yes", 8]],
+    gap: "New-authority truckers get the same path as everyone else.",
+    fix: "Write a short what-to-expect note for new DOT/MC truckers and send it with your first reply." },
+  { q: "Who answers new leads?",
+    choices: [["me, when I can", 4], ["one person", 8], ["a team or automation", 14], ["nobody reliably", 0]],
+    gap: "New leads depend on whoever has time.",
+    fix: "Name one person or an automatic text to answer every new lead, with a backup for when they're out." },
+  { q: "About how many trucking quote requests do you get a month?",
+    choices: [["under 20", 2], ["20–50", 6], ["50–150", 10], ["150+", 12]],
+    gap: "Not enough trucking quote requests come in each month.",
+    fix: "Set a monthly target for trucking quote requests and check each week where the next ones will come from." }
+];
+const BANDS = [
+  { min: 80, name: "Built to bind", cls: "band-high" },
+  { min: 50, name: "Leaving policies on the table", cls: "band-mid" },
+  { min: 0, name: "Losing policies daily", cls: "band-low" }
+];
+const NO_GAPS = "No big gaps found. Keep doing what you're doing.";
+
+const answers = new Array(QUESTIONS.length).fill(null); // index of the chosen answer per question
+let current = 0;
+
+function score() {
+  return answers.reduce((sum, a, i) => sum + (a == null ? 0 : QUESTIONS[i].choices[a][1]), 0);
+}
+const bandFor = s => BANDS.find(b => s >= b.min);
+// The 3 answers that lose the most points; ties go to the earlier question. Answers with nothing lost are not gaps.
+function topGaps() {
+  return QUESTIONS.map((Q, i) => ({ i, lost: Math.max(...Q.choices.map(c => c[1])) - Q.choices[answers[i]][1] }))
+    .filter(g => g.lost > 0)
+    .sort((a, b) => b.lost - a.lost || a.i - b.i)
+    .slice(0, 3)
+    .map(g => QUESTIONS[g.i]);
+}
+
+function show(id) {
+  for (const s of ["intro", "quiz", "result"]) $(s).hidden = s !== id;
+  window.scrollTo({ top: 0 });
+}
+function renderQuestion() {
+  const Q = QUESTIONS[current];
+  $("q-count").textContent = `Question ${current + 1} of ${QUESTIONS.length}`;
+  $("bar-fill").style.width = (current / QUESTIONS.length * 100) + "%";
+  $("bar").setAttribute("aria-valuenow", String(current));
+  $("q-text").textContent = Q.q;
+  const box = $("choices");
+  box.textContent = "";
+  Q.choices.forEach(([label], idx) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "choice"; b.textContent = label;
+    b.setAttribute("aria-pressed", String(answers[current] === idx));
+    b.addEventListener("click", () => pick(idx));
+    box.appendChild(b);
+  });
+  $("back").textContent = current === 0 ? "← Back to start" : "← Back";
+  $("quiz").focus({ preventScroll: true });
+}
+function pick(idx) {
+  answers[current] = idx;
+  if (current < QUESTIONS.length - 1) { current++; renderQuestion(); window.scrollTo({ top: 0 }); }
+  else renderResult();
+}
+function renderResult() {
+  const s = score(), band = bandFor(s), gaps = topGaps();
+  $("score").innerHTML = s + " <small>/ 100</small>";
+  $("band").textContent = band.name;
+  $("band").className = "band " + band.cls;
+  $("gaps-h").textContent = gaps.length === 3 ? "Your 3 biggest gaps" : gaps.length ? "Your biggest gaps" : "Your gaps";
+  const list = $("gaps");
+  list.textContent = "";
+  if (!gaps.length) { const li = document.createElement("li"); li.textContent = NO_GAPS; list.appendChild(li); }
+  for (const g of gaps) {
+    const li = document.createElement("li");
+    const b = document.createElement("b"); b.textContent = g.gap;
+    const p = document.createElement("p"); p.className = "fix";
+    const strong = document.createElement("strong"); strong.textContent = "Free fix: ";
+    p.append(strong, g.fix);
+    li.append(b, p);
+    list.appendChild(li);
+  }
+  show("result");
+  $("result").focus({ preventScroll: true });
+}
+$("start").addEventListener("click", () => { current = 0; show("quiz"); renderQuestion(); });
+$("back").addEventListener("click", () => {
+  if (current === 0) { show("intro"); $("start").focus(); }
+  else { current--; renderQuestion(); }
+});
+$("retake").addEventListener("click", () => { answers.fill(null); current = 0; show("quiz"); renderQuestion(); });
+
+// Result fields for the sign-up payload: q1..q8 carry the answer text word for word.
+function checkupFields() {
+  const s = score(), gaps = topGaps(), out = { checkup_score: s, checkup_band: bandFor(s).name };
+  for (let n = 0; n < 3; n++) out["checkup_gap_" + (n + 1)] = gaps[n] ? gaps[n].gap : "";
+  QUESTIONS.forEach((Q, i) => { out["q" + (i + 1)] = answers[i] == null ? "" : Q.choices[answers[i]][0]; });
+  return out;
+}
+
+// First-touch ad attribution. Meta ads add utm_* + platform to the link and fbclid on its own.
+// The first paid visit wins: a later visit without those params never overwrites it. A visit with no
+// params is kept only until a paid visit arrives, so landing page, referrer and first_seen still show up.
+const ATTR_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "platform", "fbclid"];
+const ATTR_FIELDS = [...ATTR_KEYS, "landing_page", "referrer", "first_seen"];
+const ATTR_STORE = "gtlm_attribution";
+const attribution = (() => {
+  const params = new URLSearchParams(location.search); // decodes %7C, %2C, %20 and "+"
+  const fromUrl = {};
+  // When a key repeats, the last value wins: Meta appends its ad params after any tags already in a boosted post's link.
+  for (const k of ATTR_KEYS) { const v = (params.getAll(k).pop() || "").trim(); if (v) fromUrl[k] = v.slice(0, 200); }
+  const hasParams = Object.keys(fromUrl).length > 0;
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(ATTR_STORE) || "null"); } catch {}
+  const savedIsPaid = saved && typeof saved === "object" && ATTR_KEYS.some(k => saved[k]);
+  if (savedIsPaid || (saved && typeof saved === "object" && !hasParams)) return saved;
+  const touch = { ...fromUrl, landing_page: location.href.slice(0, 500), referrer: document.referrer.slice(0, 500), first_seen: new Date().toISOString() };
+  try { localStorage.setItem(ATTR_STORE, JSON.stringify(touch)); } catch {}
+  return touch;
+})();
+// Flat string values for the payload: missing values are "", never "undefined" or "null".
+const attributionFields = () => Object.fromEntries(ATTR_FIELDS.map(k => [k, attribution[k] == null ? "" : String(attribution[k])]));
+
+const form = $("signup"), msg = $("su-msg"), btn = $("su-btn");
+// Hidden copies of the attribution, so a plain form post would carry them too.
+for (const [k, v] of Object.entries(attributionFields())) {
+  const input = document.createElement("input");
+  input.type = "hidden"; input.name = k; input.value = v;
+  form.appendChild(input);
+}
+function fail(text, el) {
+  msg.className = "msg err"; msg.textContent = text;
+  if (el) { el.setAttribute("aria-invalid", "true"); el.focus(); }
+}
+form.addEventListener("input", e => e.target.removeAttribute("aria-invalid"));
+
+// Phone clean-up: autofill and paste often add "+1". Drop a leading 1 from 11 digits, then show (817) 555-0142.
+// Anything that isn't 10 digits after that is left as entered so validation can flag it, never cut short.
+const phoneEl = $("su-phone"), phoneErr = $("su-phone-err");
+function phoneDigits(v) { let d = String(v).replace(/\D/g, ""); if (d.length === 11 && d[0] === "1") d = d.slice(1); return d; }
+const phoneOk = d => /^[2-9]\d{2}[2-9]\d{6}$/.test(d);
+function tidyPhone() {
+  const d = phoneDigits(phoneEl.value);
+  if (d.length === 10) phoneEl.value = `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+  return d;
+}
+phoneEl.addEventListener("input", () => { phoneErr.hidden = true; tidyPhone(); });
+phoneEl.addEventListener("change", tidyPhone);
+phoneEl.addEventListener("paste", () => setTimeout(tidyPhone, 0));
+
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (btn.disabled) return;
+  const first = $("su-name").value.trim(), last = $("su-last").value.trim(), agency = $("su-agency").value.trim();
+  const email = $("su-email").value.trim();
+  const digits = tidyPhone();
+  if (!first) return fail("Enter your first name.", $("su-name"));
+  if (!last) return fail("Enter your last name.", $("su-last"));
+  if (!agency) return fail("Enter your agency name.", $("su-agency"));
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("Enter a valid email address, like name@agency.com.", $("su-email"));
+  if (!phoneOk(digits)) {
+    msg.className = "msg"; msg.textContent = "";
+    phoneErr.hidden = false; phoneEl.setAttribute("aria-invalid", "true"); phoneEl.focus();
+    return;
+  }
+  const sms = $("su-sms").checked;
+  // "page" stays "trucking.globaltlm.com" (same as the home page form) so leads land in the same GHL workflow.
+  const payload = {
+    name: first, lastName: last, agency, email, phone: "+1" + digits, smsConsent: sms,
+    createdAt: new Date().toISOString(), page: "trucking.globaltlm.com",
+    ...attributionFields(),
+    ...checkupFields()
+  };
+  btn.disabled = true; msg.className = "msg"; msg.textContent = "Saving…";
+  try {
+    const res = await fetch("/api/signup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    if (!res.ok) throw new Error("signup failed");
+    const id = "gtlm-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+    try { sessionStorage.setItem("gtlm_lead", JSON.stringify({ id, sms })); } catch {}
+    msg.className = "msg ok"; msg.textContent = "Done. Taking you to the next step…";
+    location.href = "/thank-you/";
+  } catch {
+    btn.disabled = false;
+    msg.className = "msg err"; msg.textContent = "Your signup couldn't be saved. Please try again in a minute.";
+  }
+});
+</script>
+</body>
+</html>
