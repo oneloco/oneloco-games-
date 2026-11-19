@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 rm -rf dist
-mkdir -p dist/missed-revenue dist/trucking/thank-you dist/audit dist/cpm dist/ads dist/home dist/home/not-found dist/checkup
+mkdir -p dist/missed-revenue dist/trucking/thank-you dist/audit dist/cpm dist/ads dist/home dist/home/not-found dist/checkup dist/meta-ads-cost-trucking-insurance
 cp calculators/missed-revenue.html dist/missed-revenue/index.html
 cp calculators/trucking-quote-leak.html dist/trucking/index.html
 cp calculators/trucking-thank-you.html dist/trucking/thank-you/index.html
@@ -14,6 +14,8 @@ cp calculators/home.html dist/home/index.html
 cp calculators/home-404.html dist/home/not-found/index.html
 # Quote-to-Bind Checkup: www.globaltlm.com/checkup/, plus a noindex preview at /checkup-preview/ on the Pages address.
 cp calculators/checkup.html dist/checkup/index.html
+# Guide: www.globaltlm.com/meta-ads-cost-trucking-insurance/ (noindex on the Pages address).
+cp calculators/guide-meta-ads-cost.html dist/meta-ads-cost-trucking-insurance/index.html
 # Lead magnet PDF, served at /Trucking-Agency-Follow-Up-Playbook.pdf on calc. and trucking.
 cp site/files/Trucking-Agency-Follow-Up-Playbook.pdf dist/missed-revenue/
 cp site/files/Trucking-Agency-Follow-Up-Playbook.pdf dist/trucking/
@@ -25,5 +27,5 @@ cp site/sitemap.xml dist/sitemap.xml
 cp site/_worker.js calculators/audit/ghl-pull.js dist/
 # Meta Pixel ID for the trucking pages (empty = no pixel).
 PIXEL_ID="$(tr -cd '0-9' < site/meta-pixel-id.txt 2>/dev/null || true)"
-sed -i "s/__META_PIXEL_ID__/${PIXEL_ID}/" dist/trucking/index.html dist/trucking/thank-you/index.html dist/home/index.html dist/checkup/index.html
+sed -i "s/__META_PIXEL_ID__/${PIXEL_ID}/" dist/trucking/index.html dist/trucking/thank-you/index.html dist/home/index.html dist/checkup/index.html dist/meta-ads-cost-trucking-insurance/index.html
 echo "Built dist/ (pixel: ${PIXEL_ID:-none})"

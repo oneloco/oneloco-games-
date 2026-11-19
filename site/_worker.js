@@ -84,6 +84,7 @@ export default {
       else if (url.pathname === "/thank-you/" || url.pathname === "/thank-you") url.pathname = "/trucking/thank-you/";
       else if (url.pathname === "/checkup/" || url.pathname === "/checkup") url.pathname = "/checkup/";
       else if (url.pathname === "/sitemap.xml") url.pathname = "/sitemap.xml";
+      else if (url.pathname === "/meta-ads-cost-trucking-insurance/" || url.pathname === "/meta-ads-cost-trucking-insurance") url.pathname = "/meta-ads-cost-trucking-insurance/";
       else {
         // Any other path on www/bare gets the Global TLM not-found page with a real 404.
         url.pathname = "/home/not-found/";
@@ -106,6 +107,7 @@ export default {
         return noindex(await env.ASSETS.fetch(new Request(url, req)));
       }
       if (url.pathname.startsWith("/checkup/")) return noindex(await env.ASSETS.fetch(req));
+      if (url.pathname.startsWith("/meta-ads-cost-trucking-insurance/")) return noindex(await env.ASSETS.fetch(req));
       if (url.pathname === "/thank-you/") {
         url.pathname = "/trucking/thank-you/";
         return noindex(await env.ASSETS.fetch(new Request(url, req)));
